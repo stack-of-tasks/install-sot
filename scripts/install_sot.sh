@@ -1,9 +1,19 @@
 #! /bin/bash
+# Olivier Stasse, LAAS/CNRS, Copyright 2013
+# Thomas Moulard, LAAS/CNRS, Copyright 2011, 2012, 2013
+# 
+# In its current form the script will fail
+# at the first install on openhrp_bridge.
+# By rerunning 
+# install_sot.sh your_ros_ws 20
+# it should work.
+# 
 # Please set these values before running the script!
 # We recommend something like:
 #   SRC_DIR=$HOME/devel/ros/src
 #   INSTALL_DIR=$HOME/devel/ros/install
 # clean the environment
+
 set -e
 
 echo $PATH
@@ -12,8 +22,11 @@ install_level=$2
 
 if [ $install_level -lt -1 ]; then
  exit 0
-fi 
+fi
+ 
+## Environment variables
 
+# Setup ROS variables
 . /opt/ros/electric/setup.bash
 
 LAAS_USER_ACCOUNT=ostasse
@@ -57,6 +70,7 @@ LAAS_URI=git@github.com:laas
 #LAAS_URI=https://thomas-moulard@github.com/laas
 
 LAAS_PRIVATE_URI=ssh://${LAAS_USER_ACCOUNT}@softs.laas.fr/git/jrl
+
 ################
 # Installation #
 ################
@@ -109,15 +123,20 @@ install_doxygen()
 
 install_pkg()
 {
-
+    # Go to the repository
     cd $1
+
+    # Update the repo
     if test -d "$2"; then
 	cd $2
     	${GIT} pull
+    # Or make the first clone
     else
     	${GIT} ${GIT_CLONE_OPTS} clone $3/$2
         cd $2
     fi
+
+    # Switch to the branch if needed
     if ! test x"$4" = x; then
        if ${GIT} branch | grep $4 ; then
 	   ${GIT} checkout $4
@@ -125,6 +144,8 @@ install_pkg()
 	   ${GIT} checkout -b $4 origin/$4
        fi
     fi
+
+    # Choose the build type
     if ! test x"$5" = x; then
 	local_build_type=$5
 	local_cflags=""
@@ -133,7 +154,7 @@ install_pkg()
 	local_cflags=${CFLAGS}
     fi
 
-
+    # Configure the repository
     ${GIT} submodule init && ${GIT} submodule update
     mkdir -p _build-$local_build_type
     cd _build-$local_build_type
@@ -149,6 +170,8 @@ install_pkg()
 	-DCMAKE_INSTALL_PREFIX=${INSTALL_DIR} \
 	-DSMALLMATRIX=jrl-mathtools -DROBOT=${ROBOT} \
 	-DCMAKE_CXX_FLAGS="$local_cflags" ..
+
+    # Build the repository
     ${MAKE} ${MAKE_OPTS}
     ${MAKE} install ${MAKE_OPTS}
 }
@@ -174,31 +197,78 @@ install_python_pkg()
     python setup.py install --prefix=${INSTALL_DIR}
 }
 
+install_ros_legacy()
+{
+    sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu lucid main" > /etc/apt/sources.list.d/ros-latest.list'
+    sudo chmod 644 /etc/apt/sources.list.d/ros-latest.list
+    wget http://packages.ros.org/ros.key -O - | sudo apt-key add -
+    sudo apt-get install ros-electric-desktop-full
+    sudo apt-get install python-setuptools python-pip
+    sudo pip install -U rosinstall
+}
+
 install_ros_ws()
 {
-    # sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu lucid main" > /etc/apt/sources.list.d/ros-latest.list'
-    # sudo chmod 644 /etc/apt/sources.list.d/ros-latest.list
-    # wget http://packages.ros.org/ros.key -O - | sudo apt-key add -
-    # sudo apt-get install ros-electric-desktop-full
-    # sudo apt-get install python-setuptools python-pip
-    # sudo pip install -U rosinstall
     rosinstall ~/devel/$ROS_DEVEL_NAME https://raw.github.com/laas/ros/master/laas.rosinstall /opt/ros/electric
     rosinstall ~/devel/$ROS_DEVEL_NAME https://raw.github.com/laas/ros/master/laas-private.rosinstall
-    source ~/devel/$ROS_DEVEL_NAME/setup.bash
-    # To be done when dynamic_graph is installed.
-    roscd dynamic_graph_bridge 
-    rosmake
-    roscd hrp2_14_description
-    rosmake
-    # Warning        
-    roscd openhrp_bridge
-    # Break here
-    # Go to the build of openhrp_bridge
-    # Set the robot variable then
-    # build the repository again.
-    rosmake
-
 }
+
+error_prone_rosmake()
+{
+  trap 'echo trapped; break' ERR;  # Set ERR trap
+
+  function foo { rosmake; false; }  # foo() exits with error
+
+  # `trap-loop'
+  while true; do
+    echo Entered \`trap-loop\'
+    foo
+    echo This is never reached
+    break
+  done
+
+  echo This is always executed - with or without a trap occurring
+
+  trap - ERR  # Reset ERR trap
+}
+
+install_ros_ws_package()
+{
+    echo "### Install ros package $1"
+    # Go to the rospackage build directory.
+    roscd $1
+    echo "PWD:"$PWD
+    if [ ! -d build ]; then
+       error_prone_rosmake
+    fi
+    cd build
+
+    # Choose the build type
+    if ! test x"$2" = x; then
+	local_build_type=$2
+	local_cflags=""
+    else
+	local_build_type=${BUILD_TYPE}
+	local_cflags=${CFLAGS}
+    fi
+
+    # Configure the package
+    echo ${CMAKE} \
+	-DCMAKE_BUILD_TYPE=$local_build_type \
+	-DCMAKE_EXE_LINKER_FLAGS_$local_build_type=\"${LDFLAGS}\" \
+	-DCMAKE_INSTALL_PREFIX=${INSTALL_DIR} \
+	-DSMALLMATRIX=jrl-mathtools -DROBOT=${ROBOT} \
+    	-DCMAKE_CXX_FLAGS=\"$local_cflags\" ..
+    ${CMAKE} \
+	-DCMAKE_BUILD_TYPE=$local_build_type \
+	-DCMAKE_EXE_LINKER_FLAGS_$local_build_type="${LDFLAGS}" \
+	-DCMAKE_INSTALL_PREFIX=${INSTALL_DIR} \
+	-DSMALLMATRIX=jrl-mathtools -DROBOT=${ROBOT} \
+	-DCMAKE_CXX_FLAGS="$local_cflags" ..
+    ${MAKE} ${MAKE_OPTS}
+
+}    
+
 
 # Setup environment variables.
 export LD_LIBRARY_PATH="${INSTALL_DIR}/lib"
@@ -214,8 +284,14 @@ if [ $install_level -lt -1 ]; then
   install_doxygen
 fi
 
-if [ $install_level -lt 1 ]; then
+if [ $install_level -lt 0 ]; then
   install_ros_ws
+fi
+
+source ~/devel/$ROS_DEVEL_NAME/setup.bash
+
+if [ $install_level -lt 1 ]; then
+  install_ros_ws_package hrp2_14_description
 fi
 
 # --- Mathematical tools
@@ -284,11 +360,11 @@ if [ $install_level -lt 14 ]; then
 fi
 
 if [ $install_level -lt 15 ]; then 
-  install_pkg $SRC_DIR/sot dynamic-graph-corba ${LAAS_URI}
+  install_pkg $SRC_DIR/sot sot-core ${JRL_URI}
 fi
 
 if [ $install_level -lt 16 ]; then 
-  install_pkg $SRC_DIR/sot sot-core ${JRL_URI}
+  install_pkg $SRC_DIR/sot dynamic-graph-corba ${LAAS_URI}
 fi
 
 if [ $install_level -lt 17 ]; then 
@@ -296,14 +372,23 @@ if [ $install_level -lt 17 ]; then
 fi
 
 if [ $install_level -lt 18 ]; then 
-  install_pkg $SRC_DIR/sot sot-hrp2 ${LAAS_URI}
+  install_pkg $SRC_DIR/sot sot-pattern-generator ${JRL_URI} topic/python
 fi
 
-if [ $install_level -lt 19 ]; then 
-  install_pkg $SRC_DIR/sot sot-hrp2-hrpsys ${LAAS_URI}
+if [ $install_level -lt 19 ]; then
+  install_ros_ws_package dynamic_graph_bridge
 fi
 
 if [ $install_level -lt 20 ]; then 
-  install_pkg $SRC_DIR/sot sot-pattern-generator ${JRL_URI} topic/python
+  install_pkg $SRC_DIR/sot sot-hrp2 ${LAAS_URI}
 fi
+
+if [ $install_level -lt 21 ]; then
+  install_ros_ws_package openhrp_bridge
+fi
+
+if [ $install_level -lt 22 ]; then 
+  install_pkg $SRC_DIR/sot sot-hrp2-hrpsys ${LAAS_URI}
+fi
+
 
