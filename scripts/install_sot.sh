@@ -2,34 +2,41 @@
 # Olivier Stasse, LAAS/CNRS, Copyright 2013
 # Thomas Moulard, LAAS/CNRS, Copyright 2011, 2012, 2013
 # 
-# In its current form the script will fail
-# at the first install on openhrp_bridge.
-# By rerunning 
-# install_sot.sh your_ros_ws 20
-# it should work.
-# 
 # Please set these values before running the script!
 # We recommend something like:
 #   SRC_DIR=$HOME/devel/ros/src
 #   INSTALL_DIR=$HOME/devel/ros/install
 # clean the environment
 
+
+
+usage_message()
+{
+  echo "Usage: `basename $0` [-h] ros_install_path installation_level"
+  echo ""
+  echo "  ros_install_path: The directory where to install the ros workspace."
+  echo "    The git repositories are cloned in ros_install_path/src and"
+  echo "    installed in ros_install_path/install."
+  echo "" 
+  echo "  installation_level: Specifies at which step the script should start"
+  echo "    the installation."
+  echo ""
+  echo "Options:"
+  echo "   -h : Display help"
+  echo "   -l : Display list of instructions for installing"
+  echo "        When -l is specified with ros_install_path and installation_level "
+  echo "        the instructions are displayed but not run."
+}
+
+
+
 set -e
 
-echo $PATH
-
-install_level=$2
-
-if [ $install_level -lt -1 ]; then
- exit 0
-fi
  
 ## Environment variables
 
 # Setup ROS variables
 . /opt/ros/electric/setup.bash
-
-LAAS_USER_ACCOUNT=ostasse
 
 ROS_DEVEL_NAME=$1
 SRC_DIR=$HOME/devel/$ROS_DEVEL_NAME/src
@@ -39,7 +46,6 @@ export ROS_ROOT=/opt/ros/electric/ros
 export PATH=$ROS_ROOT/bin:$PATH
 export PYTHONPATH=$ROS_ROOT/core/roslib/src:$PYTHONPATH
 export ROS_PACKAGE_PATH=~/devel/$ROS_DEVEL_NAME:~/devel/$ROS_DEVEL_NAME/stacks/hrp2:~/devel/$ROS_DEVEL_NAME/stacks/ethzasl_ptam:/opt/ros/electric/stacks:/opt/ros/electric/stacks/ros_realtime:$ROS_PACKAGE_PATH
-
 
 # Use environment variables to override these options
 : ${GIT=/usr/bin/git}
@@ -61,6 +67,8 @@ export ROS_PACKAGE_PATH=~/devel/$ROS_DEVEL_NAME:~/devel/$ROS_DEVEL_NAME/stacks/h
 JRL_URI=git@github.com:jrl-umi3218
 LAAS_URI=git@github.com:laas
 
+LAAS_USER_ACCOUNT=ostasse
+
 # If you do not have a GitHub account (read-only):
 #JRL_URI=git://github.com:jrl-umi3218
 #LAAS_URI=git://github.com:laas
@@ -70,6 +78,151 @@ LAAS_URI=git@github.com:laas
 #LAAS_URI=https://thomas-moulard@github.com/laas
 
 LAAS_PRIVATE_URI=ssh://${LAAS_USER_ACCOUNT}@softs.laas.fr/git/jrl
+
+create_local_db()
+{
+  local_db_file="/tmp/install_sod_db.dat"
+  if [ -f $local_db_file ] ; then
+      rm $local_db_file
+  fi
+
+  index=0;
+  
+  inst_array[index]="install_git"
+  let "index= $index +1"
+
+  inst_array[index]="install_doxygen"
+  let "index= $index +1"
+  
+  inst_array[index]="install_doxygen"
+  let "index= $index +1"
+
+  inst_array[index]="install_ros_ws"
+  let "index= $index +1"
+
+  inst_array[index]="install_ros_ws_package hrp2_14_description"
+  let "index= $index + 1"
+
+  inst_array[index]="install_pkg $SRC_DIR/jrl jrl-mathtools ${JRL_URI}"
+  let "index= $index + 1"
+
+  inst_array[index]="install_pkg $SRC_DIR/jrl jrl-mal ${JRL_URI} topic/python"
+  let "index= $index + 1"
+
+  inst_array[index]="install_pkg $SRC_DIR/laas abstract-robot-dynamics ${LAAS_URI}"
+  let "index= $index + 1"
+
+  inst_array[index]="install_pkg $SRC_DIR/jrl jrl-dynamics ${JRL_URI}"
+  let "index= $index + 1"
+
+  inst_array[index]="install_pkg $SRC_DIR/jrl jrl-walkgen ${JRL_URI}"
+  let "index= $index + 1"
+
+  inst_array[index]="install_pkg $SRC_DIR/robots hrp2_14 ${LAAS_PRIVATE_URI}"
+  let "index= $index + 1"
+
+  inst_array[index]="install_pkg $SRC_DIR/robots hrp2Dynamics ${LAAS_PRIVATE_URI}"
+  let "index= $index + 1"
+
+  inst_array[index]="install_pkg $SRC_DIR/robots hrp2_10 ${LAAS_PRIVATE_URI}"
+  let "index= $index + 1"
+
+  inst_array[index]="install_pkg $SRC_DIR/robots hrp2-10-optimized ${LAAS_PRIVATE_URI}/robots"
+  let "index= $index + 1"
+
+  inst_array[index]="install_pkg $SRC_DIR/sot dynamic-graph ${JRL_URI}"
+  let "index= $index + 1"
+
+  inst_array[index]="install_pkg $SRC_DIR/sot dynamic-graph-python ${JRL_URI}"
+  let "index= $index + 1"
+
+  inst_array[index]="install_pkg $SRC_DIR/laas hpp-util ${LAAS_URI}"
+  let "index= $index + 1"
+
+  inst_array[index]="install_pkg $SRC_DIR/laas hpp-template-corba ${LAAS_URI}"
+  let "index= $index + 1"
+
+  inst_array[index]="install_pkg $SRC_DIR/sot sot-core ${JRL_URI}"
+  let "index= $index + 1"
+
+  inst_array[index]="install_pkg $SRC_DIR/sot dynamic-graph-corba ${LAAS_URI}"
+  let "index= $index + 1"
+
+  inst_array[index]="install_pkg $SRC_DIR/sot sot-dynamic ${JRL_URI}"
+  let "index= $index + 1"
+
+  inst_array[index]="install_pkg $SRC_DIR/sot sot-pattern-generator ${JRL_URI} topic/python"
+  let "index= $index + 1"
+
+  inst_array[index]="install_ros_ws_package jrl_dynamics_urdf"
+  let "index= $index + 1"
+
+  inst_array[index]="install_ros_ws_package dynamic_graph_bridge"
+  let "index= $index + 1"
+
+  inst_array[index]="install_pkg $SRC_DIR/sot sot-hrp2 ${LAAS_URI}"
+  let "index= $index + 1"
+
+  inst_array[index]="install_ros_ws_package openhrp_bridge"
+  let "index= $index + 1"
+
+  inst_array[index]="install_pkg $SRC_DIR/sot sot-hrp2-hrpsys ${LAAS_URI}"
+  let "index= $index + 1" 
+
+  for ((lindex=0; lindex<${#inst_array[@]} ; lindex++ ))
+  do 
+      echo ${inst_array[$lindex]} >> $local_db_file
+  done
+
+}
+
+display_list_instructions()
+{
+  for ((lindex=0; lindex<${#inst_array[@]} ; lindex++ ))
+  do 
+      echo "$lindex - ${inst_array[$lindex]}"
+  done
+}
+
+create_local_db
+
+# Deal with options
+while getopts ":hl:" option; do
+  case "$option" in
+    h)  # it's always useful to provide some help 
+        usage_message
+        exit 0 
+        ;;
+    l)  display_list_instructions
+        exit 0
+        ;;
+    :)  echo "Error: -$option requires an argument" 
+        usage_message
+        exit 1
+        ;;
+    ?)  echo "Error: unknown option -$option" 
+        usage_message
+        exit 1
+        ;;
+  esac
+done    
+shift $(($OPTIND-1))
+
+# Check number of arguments
+EXPECTED_ARGS=2
+if [ $# -ne $EXPECTED_ARGS ]
+then
+  echo "Error: Bad number of parameters " $#
+  usage_message
+  exit $E_BADARGS
+fi
+
+install_level=$2
+
+if [ $install_level -lt -1 ]; then
+ exit 0
+fi
+
 
 ################
 # Installation #
@@ -213,25 +366,6 @@ install_ros_ws()
     rosinstall ~/devel/$ROS_DEVEL_NAME https://raw.github.com/laas/ros/master/laas-private.rosinstall
 }
 
-error_prone_rosmake()
-{
-  trap 'echo trapped; break' ERR;  # Set ERR trap
-
-  function foo { rosmake; false; }  # foo() exits with error
-
-  # `trap-loop'
-  while true; do
-    echo Entered \`trap-loop\'
-    foo
-    echo This is never reached
-    break
-  done
-
-  echo This is always executed - with or without a trap occurring
-
-  trap - ERR  # Reset ERR trap
-}
-
 install_ros_ws_package()
 {
     echo "### Install ros package $1"
@@ -239,7 +373,7 @@ install_ros_ws_package()
     roscd $1
     echo "PWD:"$PWD
     if [ ! -d build ]; then
-       error_prone_rosmake
+      mkdir -p build
     fi
     cd build
 
@@ -269,12 +403,38 @@ install_ros_ws_package()
 
 }    
 
+update_ros_setup()
+{
+  echo "update ros setup"
+  if [ -f ~/devel/$ROS_DEVEL_NAME/setup.bash ]; then 
+    source ~/devel/$ROS_DEVEL_NAME/setup.bash
+  fi
+}
+
 
 # Setup environment variables.
 export LD_LIBRARY_PATH="${INSTALL_DIR}/lib"
 export PKG_CONFIG_PATH="${INSTALL_DIR}/lib/pkgconfig"
 export PYTHONPATH="${INSTALL_DIR}/lib/python2.6/dist-packages:$PYTHONPATH:$PYTHON_PATH"
 export PATH="$PATH:${INSTALL_DIR}/bin:${INSTALL_DIR}/sbin"
+
+
+run_instructions()
+{
+  echo "run instructions from $install_level to ${#inst_array[@]}"
+  for ((lindex=$install_level; lindex<${#inst_array[@]} ; lindex++ ))
+  do 
+      if [ $lindex -ge 0 ]; then
+        update_ros_setup
+      fi
+
+      echo "Eval :" ${inst_array[$lindex]}
+      ${inst_array[$lindex]}
+  done
+}
+
+run_instructions
+exit 0
 
 # --- Third party tools
 if [ $install_level -lt -2 ]; then
@@ -288,7 +448,6 @@ if [ $install_level -lt 0 ]; then
   install_ros_ws
 fi
 
-source ~/devel/$ROS_DEVEL_NAME/setup.bash
 
 if [ $install_level -lt 1 ]; then
   install_ros_ws_package hrp2_14_description
