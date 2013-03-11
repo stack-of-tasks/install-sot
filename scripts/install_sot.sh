@@ -39,17 +39,18 @@ usage_message()
 
 set -e
 
+ROS_VERSION=electric # ROS VERSION used: electric or fuerte
  
 ## Environment variables
 
 # Setup ROS variables
-. /opt/ros/electric/setup.bash
+. /opt/ros/$ROS_VERSION/setup.bash
 
 ROS_DEVEL_NAME=$1
 SRC_DIR=$HOME/devel/$ROS_DEVEL_NAME/src
 INSTALL_DIR=$HOME/devel/$ROS_DEVEL_NAME/install
 
-export ROS_ROOT=/opt/ros/electric/ros
+export ROS_ROOT=/opt/ros/$ROS_VERSION/ros
 export PATH=$ROS_ROOT/bin:$PATH
 export PYTHONPATH=$ROS_ROOT/core/roslib/src:$PYTHONPATH
 export ROS_PACKAGE_PATH=~/devel/$ROS_DEVEL_NAME:~/devel/$ROS_DEVEL_NAME/stacks/hrp2:~/devel/$ROS_DEVEL_NAME/stacks/ethzasl_ptam:/opt/ros/electric/stacks:/opt/ros/electric/stacks/ros_realtime:$ROS_PACKAGE_PATH
@@ -366,14 +367,14 @@ install_ros_legacy()
     sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu lucid main" > /etc/apt/sources.list.d/ros-latest.list'
     sudo chmod 644 /etc/apt/sources.list.d/ros-latest.list
     wget http://packages.ros.org/ros.key -O - | sudo apt-key add -
-    sudo apt-get install ros-electric-desktop-full
+    sudo apt-get install ros-$ROS_VERSION-desktop-full
     sudo apt-get install python-setuptools python-pip
     sudo pip install -U rosinstall
 }
 
 install_ros_ws()
 {
-    rosinstall ~/devel/$ROS_DEVEL_NAME https://raw.github.com/laas/ros/master/laas.rosinstall /opt/ros/electric
+    rosinstall ~/devel/$ROS_DEVEL_NAME https://raw.github.com/laas/ros/master/laas.rosinstall /opt/ros/$ROS_VERSION
     rosinstall ~/devel/$ROS_DEVEL_NAME https://raw.github.com/laas/ros/master/laas-private.rosinstall
 }
 
