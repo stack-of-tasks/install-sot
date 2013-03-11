@@ -8,7 +8,12 @@ Quick Start
 To start the installation, you should
 1/ Set your LAAS user account
 2/ call:
-install_sot.sh ros-unstable 0
+install_sot.sh ros-unstable level_to_start
+
+If ros is installed, as well as git and doxygen,
+you can start with level_to_start=3.
+Otherwise you can set level_to_start to 0 for installing
+the needed packages.
 
 This will install a ros workspace in
 $HOME/devel/ros-unstable/
