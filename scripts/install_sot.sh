@@ -260,9 +260,23 @@ mkdir -p                \
 
 install_git()
 {
+    #checking whether git is already installed.
+    git --version &> /dev/null
+    if [ $? -eq 0 ];  then
+      res=`git --version | awk ' { print $3 }'`
+      if [[ "$res" > "1.7.4.1" ]] || [[ "$res" == "1.7.4.1" ]]; then
+        # 'Git already installed'
+        return
+      else
+        echo 'Git installed but with a deprecated version. Updating.'
+      fi
+    fi
+
+    #install git 1.7.4.1
     cd /tmp
     rm -f git-1.7.4.1.tar.bz2
-    wget http://kernel.org/pub/software/scm/git/git-1.7.4.1.tar.bz2
+    wget http://pkgs.fedoraproject.org/repo/pkgs/git/git-1.7.4.1.tar.bz2/76898de4566d11c0d0eec7e99edc2b5c/git-1.7.4.1.tar.bz2
+    mkdir -p $SRC_DIR/oss/
     mv git-1.7.4.1.tar.bz2 $SRC_DIR/oss/
     cd $SRC_DIR/oss
     tar xjvf git-1.7.4.1.tar.bz2
