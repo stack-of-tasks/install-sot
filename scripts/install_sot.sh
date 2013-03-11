@@ -288,6 +288,18 @@ install_git()
 
 install_doxygen()
 {
+    #checking whether doxygen is already installed.
+    doxygen --version &> /dev/null
+    if [ $? -eq 0 ];  then
+      res=`doxygen --version | awk ' { print $1 }'`
+      if [[ "$res" > "1.7.3" ]] || [[ "$res" == "1.7.3" ]]; then
+        # 'doxygen already installed'
+        return
+      else
+        echo 'doxygen installed but with a deprecated version. Updating.'
+      fi
+    fi
+
     cd /tmp
     rm -f doxygen-1.7.3.src.tar.gz
     wget http://ftp.stack.nl/pub/users/dimitri/doxygen-1.7.3.src.tar.gz
