@@ -8,13 +8,13 @@
 #   INSTALL_DIR=$HOME/devel/ros/install
 # clean the environment
 
-
-
 usage_message()
 {
-  echo "Usage: `basename $0` [-h] ros_install_path installation_level"
+  echo "Usage: `basename $0` [-h] ros_subdir installation_level"
   echo ""
-  echo "  ros_install_path: The directory where to install the ros workspace."
+  echo "  ros_subdir: The sub directory where to install the ros workspace."
+  echo "    The script creates a variable ros_install_path from ros_subdir:"
+  echo "    ros_install_path=$HOME/devel/$ros_subdir"
   echo "    The git repositories are cloned in ros_install_path/src and"
   echo "    installed in ros_install_path/install."
   echo "" 
@@ -23,9 +23,16 @@ usage_message()
   echo ""
   echo "Options:"
   echo "   -h : Display help"
-  echo "   -l : Display list of instructions for installing"
-  echo "        When -l is specified with ros_install_path and installation_level "
-  echo "        the instructions are displayed but not run."
+  echo "   -l : Display the steps where the script can be started for installing."
+  echo "        This also display the internal instructions run by the script."
+  echo "        To use -l you HAVE TO specify ros_install_path and installation_level." 
+  echo "        With -l the instructions are displayed but not run."
+  echo ""
+  if [ "${LAAS_USER_ACCOUNT}" == "" ]; then
+    echo "If you have a laas user account you should set the environment variable"
+    echo "LAAS_USER_ACCOUNT to have read-write rights on the repositories"
+    echo "otherwise they will be uploaded with read-only rights."
+  fi
 }
 
 
@@ -63,21 +70,23 @@ export ROS_PACKAGE_PATH=~/devel/$ROS_DEVEL_NAME:~/devel/$ROS_DEVEL_NAME/stacks/h
 : ${CXX_FLAGS=${CFLAGS}}
 : ${LDFLAGS="-Xlinker -export-dynamic -Wl,-O1 -Wl,-Bsymbolic-functions"}
 
-# Git URLs
-JRL_URI=git@github.com:jrl-umi3218
-LAAS_URI=git@github.com:laas
+if [ "${LAAS_USER_ACCOUNT}" == "" ]; then
+  # If you do not have a GitHub account (read-only):
+  JRL_URI=git://github.com/jrl-umi3218
+  LAAS_URI=git://github.com/laas 
+else 
+  # Git URLs
+  JRL_URI=git@github.com:jrl-umi3218
+  LAAS_URI=git@github.com:laas
+  LAAS_PRIVATE_URI=ssh://${LAAS_USER_ACCOUNT}@softs.laas.fr/git/jlr
+fi
 
-LAAS_USER_ACCOUNT=ostasse
 
-# If you do not have a GitHub account (read-only):
-#JRL_URI=git://github.com:jrl-umi3218
-#LAAS_URI=git://github.com:laas
 
 # HTTP protocol can also be used:
-#JRL_URI=https://thomas-moulard@github.com/jrl-umi3218
-#LAAS_URI=https://thomas-moulard@github.com/laas
+#JRL_URI=https://${LAAS_USER_ACCOUNT}@github.com/jrl-umi3218
+#LAAS_URI=https://${LAAS_USER_ACCOUNT}@github.com/laas
 
-LAAS_PRIVATE_URI=ssh://${LAAS_USER_ACCOUNT}@softs.laas.fr/git/jrl
 
 create_local_db()
 {
@@ -93,10 +102,10 @@ create_local_db()
 
   inst_array[index]="install_doxygen"
   let "index= $index +1"
-  
-  inst_array[index]="install_doxygen"
-  let "index= $index +1"
 
+  inst_array[index]="install_ros_legacy"
+  let "index= $index +1"
+  
   inst_array[index]="install_ros_ws"
   let "index= $index +1"
 
@@ -117,18 +126,20 @@ create_local_db()
 
   inst_array[index]="install_pkg $SRC_DIR/jrl jrl-walkgen ${JRL_URI}"
   let "index= $index + 1"
+  
+  if [ "${LAAS_PRIVATE_URI}" != "" ]; then 
+    inst_array[index]="install_pkg $SRC_DIR/robots hrp2_14 ${LAAS_PRIVATE_URI}"
+    let "index= $index + 1"
 
-  inst_array[index]="install_pkg $SRC_DIR/robots hrp2_14 ${LAAS_PRIVATE_URI}"
-  let "index= $index + 1"
+    inst_array[index]="install_pkg $SRC_DIR/robots hrp2Dynamics ${LAAS_PRIVATE_URI}"
+    let "index= $index + 1"
 
-  inst_array[index]="install_pkg $SRC_DIR/robots hrp2Dynamics ${LAAS_PRIVATE_URI}"
-  let "index= $index + 1"
+    inst_array[index]="install_pkg $SRC_DIR/robots hrp2_10 ${LAAS_PRIVATE_URI}"
+    let "index= $index + 1"
 
-  inst_array[index]="install_pkg $SRC_DIR/robots hrp2_10 ${LAAS_PRIVATE_URI}"
-  let "index= $index + 1"
-
-  inst_array[index]="install_pkg $SRC_DIR/robots hrp2-10-optimized ${LAAS_PRIVATE_URI}/robots"
-  let "index= $index + 1"
+    inst_array[index]="install_pkg $SRC_DIR/robots hrp2-10-optimized ${LAAS_PRIVATE_URI}/robots"
+    let "index= $index + 1"
+  fi
 
   inst_array[index]="install_pkg $SRC_DIR/sot dynamic-graph ${JRL_URI}"
   let "index= $index + 1"
@@ -435,119 +446,4 @@ run_instructions()
 
 run_instructions
 exit 0
-
-# --- Third party tools
-if [ $install_level -lt -2 ]; then
-  install_git
-fi
-if [ $install_level -lt -1 ]; then
-  install_doxygen
-fi
-
-if [ $install_level -lt 0 ]; then
-  install_ros_ws
-fi
-
-
-if [ $install_level -lt 1 ]; then
-  install_ros_ws_package hrp2_14_description
-fi
-
-# --- Mathematical tools
-if [ $install_level -lt 2 ]; then
-  install_pkg $SRC_DIR/jrl jrl-mathtools ${JRL_URI}
-fi
-
-if [ $install_level -lt 3 ]; then
-  install_pkg $SRC_DIR/jrl jrl-mal ${JRL_URI} topic/python
-fi
-
-# --- Interfaces
-if [ $install_level -lt 4 ]; then
-  install_pkg $SRC_DIR/laas abstract-robot-dynamics ${LAAS_URI}
-fi 
-
-# --- Dynamics implementation
-if [ $install_level -lt 5 ]; then
-  install_pkg $SRC_DIR/jrl jrl-dynamics ${JRL_URI}
-fi
-
-# --- walkgen implementation
-if [ $install_level -lt 6 ]; then
-  install_pkg $SRC_DIR/jrl jrl-walkgen ${JRL_URI}
-fi
-
-# --- Robots private data
-# Install by hand the following packages to have hrp-2 support:
-# - hrp2_10
-# - hrp2_14
-# - hrp2Dynamics
-# - hrp2-10-optimized
-#
-
-if [ $install_level -lt 7 ]; then 
-  install_pkg $SRC_DIR/robots hrp2_14 ${LAAS_PRIVATE_URI}
-fi
-
-if [ $install_level -lt 8 ]; then 
-  install_pkg $SRC_DIR/robots hrp2Dynamics ${LAAS_PRIVATE_URI}
-fi
-
-if [ $install_level -lt 9 ]; then 
-  install_pkg $SRC_DIR/robots hrp2_10 ${LAAS_PRIVATE_URI}
-fi
-
-if [ $install_level -lt 10 ]; then 
-  install_pkg $SRC_DIR/robots hrp2-10-optimized ${LAAS_PRIVATE_URI}/robots
-fi
-
-# --- Sot 
-if [ $install_level -lt 11 ]; then 
-  install_pkg $SRC_DIR/sot dynamic-graph ${JRL_URI}
-fi
-
-if [ $install_level -lt 12 ]; then 
-  install_pkg $SRC_DIR/sot dynamic-graph-python ${JRL_URI}
-fi
-
-if [ $install_level -lt 13 ]; then 
-  install_pkg $SRC_DIR/laas hpp-util ${LAAS_URI}
-fi
-
-if [ $install_level -lt 14 ]; then 
-  install_pkg $SRC_DIR/laas hpp-template-corba ${LAAS_URI}
-fi
-
-if [ $install_level -lt 15 ]; then 
-  install_pkg $SRC_DIR/sot sot-core ${JRL_URI}
-fi
-
-if [ $install_level -lt 16 ]; then 
-  install_pkg $SRC_DIR/sot dynamic-graph-corba ${LAAS_URI}
-fi
-
-if [ $install_level -lt 17 ]; then 
-  install_pkg $SRC_DIR/sot sot-dynamic ${JRL_URI}
-fi
-
-if [ $install_level -lt 18 ]; then 
-  install_pkg $SRC_DIR/sot sot-pattern-generator ${JRL_URI} topic/python
-fi
-
-if [ $install_level -lt 19 ]; then
-  install_ros_ws_package dynamic_graph_bridge
-fi
-
-if [ $install_level -lt 20 ]; then 
-  install_pkg $SRC_DIR/sot sot-hrp2 ${LAAS_URI}
-fi
-
-if [ $install_level -lt 21 ]; then
-  install_ros_ws_package openhrp_bridge
-fi
-
-if [ $install_level -lt 22 ]; then 
-  install_pkg $SRC_DIR/sot sot-hrp2-hrpsys ${LAAS_URI}
-fi
-
 
