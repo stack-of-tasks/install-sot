@@ -110,8 +110,10 @@ create_local_db()
   inst_array[index]="install_ros_ws"
   let "index= $index +1"
 
-  inst_array[index]="install_ros_ws_package hrp2_14_description"
-  let "index= $index + 1"
+  if [ "${LAAS_PRIVATE_URI}" != "" ]; then
+    inst_array[index]="install_ros_ws_package hrp2_14_description"
+    let "index= $index + 1"
+  fi
 
   inst_array[index]="install_pkg $SRC_DIR/jrl jrl-mathtools ${JRL_URI}"
   let "index= $index + 1"
@@ -172,14 +174,16 @@ create_local_db()
   inst_array[index]="install_ros_ws_package dynamic_graph_bridge"
   let "index= $index + 1"
 
-  inst_array[index]="install_pkg $SRC_DIR/sot sot-hrp2 ${LAAS_URI}"
-  let "index= $index + 1"
+  if [ "${LAAS_PRIVATE_URI}" != "" ]; then
+    inst_array[index]="install_pkg $SRC_DIR/sot sot-hrp2 ${LAAS_URI}"
+    let "index= $index + 1"
 
-  inst_array[index]="install_ros_ws_package openhrp_bridge"
-  let "index= $index + 1"
+    inst_array[index]="install_ros_ws_package openhrp_bridge"
+    let "index= $index + 1"
 
-  inst_array[index]="install_pkg $SRC_DIR/sot sot-hrp2-hrpsys ${LAAS_URI}"
-  let "index= $index + 1" 
+    inst_array[index]="install_pkg $SRC_DIR/sot sot-hrp2-hrpsys ${LAAS_URI}"
+    let "index= $index + 1"
+  fi
 
   for ((lindex=0; lindex<${#inst_array[@]} ; lindex++ ))
   do 
