@@ -466,11 +466,12 @@ run_instructions()
   echo "run instructions from $install_level to ${#inst_array[@]}"
   for ((lindex=$install_level; lindex<${#inst_array[@]} ; lindex++ ))
   do 
+      echo
       if [ $lindex -ge 0 ]; then
         update_ros_setup
       fi
 
-      echo "Eval :" ${inst_array[$lindex]}
+      echo "Eval ("$lindex"):" ${inst_array[$lindex]}
       ${inst_array[$lindex]}
   done
 }
