@@ -79,7 +79,7 @@ else
   # Git URLs
   JRL_URI=git@github.com:jrl-umi3218
   LAAS_URI=git@github.com:laas
-  LAAS_PRIVATE_URI=ssh://${LAAS_USER_ACCOUNT}@softs.laas.fr/git/jlr
+  LAAS_PRIVATE_URI=ssh://${LAAS_USER_ACCOUNT}@softs.laas.fr/git/jrl
 fi
 
 
