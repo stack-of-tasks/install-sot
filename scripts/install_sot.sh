@@ -127,9 +127,6 @@ create_local_db()
   inst_array[index]="install_pkg $SRC_DIR/jrl jrl-dynamics ${JRL_URI}"
   let "index= $index + 1"
 
-  inst_array[index]="install_pkg $SRC_DIR/jrl jrl-walkgen ${JRL_URI}"
-  let "index= $index + 1"
-  
   if [ "${LAAS_PRIVATE_URI}" != "" ]; then 
     inst_array[index]="install_pkg $SRC_DIR/robots hrp2_14 ${LAAS_PRIVATE_URI}"
     let "index= $index + 1"
@@ -143,6 +140,9 @@ create_local_db()
     inst_array[index]="install_pkg $SRC_DIR/robots hrp2-10-optimized ${LAAS_PRIVATE_URI}/robots"
     let "index= $index + 1"
   fi
+
+  inst_array[index]="install_pkg $SRC_DIR/jrl jrl-walkgen ${JRL_URI}"
+  let "index= $index + 1"
 
   inst_array[index]="install_pkg $SRC_DIR/sot dynamic-graph ${JRL_URI}"
   let "index= $index + 1"
