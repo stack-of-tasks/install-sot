@@ -327,7 +327,7 @@ install_pkg()
     	${GIT} pull
     # Or make the first clone
     else
-    	${GIT} ${GIT_CLONE_OPTS} clone $3/$2
+        ${GIT} ${GIT_CLONE_OPTS} clone $3/$2 $2
         cd $2
     fi
 
