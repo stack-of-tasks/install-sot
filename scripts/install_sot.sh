@@ -73,10 +73,12 @@ export ROS_PACKAGE_PATH=~/devel/$ROS_DEVEL_NAME:~/devel/$ROS_DEVEL_NAME/stacks/h
 
 if [ "${LAAS_USER_ACCOUNT}" == "" ]; then
   # If you do not have a GitHub account (read-only):
+  INRIA_URI=https://gforge.inria.fr/git/romeo-sot
   JRL_URI=git://github.com/jrl-umi3218
   LAAS_URI=git://github.com/laas 
 else 
   # Git URLs
+  INRIA_URI=https://gforge.inria.fr/git/romeo-sot
   JRL_URI=git@github.com:jrl-umi3218
   LAAS_URI=git@github.com:laas
   LAAS_PRIVATE_URI=ssh://${LAAS_USER_ACCOUNT}@softs.laas.fr/git/jrl
@@ -109,6 +111,9 @@ create_local_db()
   
   inst_array[index]="install_ros_ws"
   let "index= $index +1"
+
+  inst_array[index]="install_pkg $SRC_DIR/robots romeo-sot.git ${INRIA_URI}"
+  let "index= $index + 1"
 
   if [ "${LAAS_PRIVATE_URI}" != "" ]; then
     inst_array[index]="install_ros_ws_package hrp2_14_description"
@@ -172,6 +177,9 @@ create_local_db()
   let "index= $index + 1"
 
   inst_array[index]="install_ros_ws_package dynamic_graph_bridge"
+  let "index= $index + 1"
+
+  inst_array[index]="install_ros_ws_package romeo_description"
   let "index= $index + 1"
 
   if [ "${LAAS_PRIVATE_URI}" != "" ]; then
