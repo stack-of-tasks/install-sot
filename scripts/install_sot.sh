@@ -366,12 +366,14 @@ install_pkg()
 	-DCMAKE_EXE_LINKER_FLAGS_$local_build_type=\"${LDFLAGS}\" \
 	-DCMAKE_INSTALL_PREFIX=${INSTALL_DIR} \
 	-DSMALLMATRIX=jrl-mathtools -DROBOT=${ROBOT} \
+	-DCXX_DISABLE_WERROR=1 \
     	-DCMAKE_CXX_FLAGS=\"$local_cflags\" ..
     ${CMAKE} \
 	-DCMAKE_BUILD_TYPE=$local_build_type \
 	-DCMAKE_EXE_LINKER_FLAGS_$local_build_type="${LDFLAGS}" \
 	-DCMAKE_INSTALL_PREFIX=${INSTALL_DIR} \
 	-DSMALLMATRIX=jrl-mathtools -DROBOT=${ROBOT} \
+	-DCXX_DISABLE_WERROR=1 \
 	-DCMAKE_CXX_FLAGS="$local_cflags" ..
 
     # Build the repository
