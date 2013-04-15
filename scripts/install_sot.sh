@@ -115,6 +115,9 @@ create_local_db()
   inst_array[index]="install_pkg $SRC_DIR/robots romeo-sot.git ${INRIA_URI}"
   let "index= $index + 1"
 
+  inst_array[index]="install_pkg $SRC_DIR/robots sot-romeo.git ${JRL_URI}"
+  let "index= $index + 1"
+
   if [ "${LAAS_PRIVATE_URI}" != "" ]; then
     inst_array[index]="install_ros_ws_package hrp2_14_description"
     let "index= $index + 1"
