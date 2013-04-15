@@ -421,7 +421,9 @@ install_ros_legacy()
 install_ros_ws()
 {
     rosinstall ~/devel/$ROS_DEVEL_NAME https://raw.github.com/laas/ros/master/laas.rosinstall /opt/ros/$ROS_VERSION
-    rosinstall ~/devel/$ROS_DEVEL_NAME https://raw.github.com/laas/ros/master/laas-private.rosinstall
+    if [ "${LAAS_PRIVATE_URI}" != "" ]; then
+      rosinstall ~/devel/$ROS_DEVEL_NAME https://raw.github.com/laas/ros/master/laas-private.rosinstall
+    fi
 }
 
 install_ros_ws_package()
