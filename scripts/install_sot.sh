@@ -459,6 +459,10 @@ install_ros_ws_package()
 	-DCMAKE_CXX_FLAGS="$local_cflags" ..
     ${MAKE} ${MAKE_OPTS}
 
+	if [ "$1" == "dynamic_graph_bridge" ]; then
+  	  ${MAKE} install
+	fi
+
 }    
 
 update_ros_setup()
