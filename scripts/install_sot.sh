@@ -170,6 +170,9 @@ create_local_db()
   inst_array[index]="install_pkg $SRC_DIR/sot dynamic-graph-corba ${LAAS_URI}"
   let "index= $index + 1"
 
+  inst_array[index]="install_pkg $SRC_DIR/sot sot-tools ${LAAS_URI}"
+  let "index= $index + 1"
+
   inst_array[index]="install_pkg $SRC_DIR/sot sot-dynamic ${JRL_URI}"
   let "index= $index + 1"
 
