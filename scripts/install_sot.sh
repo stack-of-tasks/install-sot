@@ -35,6 +35,20 @@ usage_message()
   fi
 }
 
+## Detect if General Robotix software is present
+detect_grx()
+{
+    GRX_FOUND=""
+    if [ -d /opt/grx3.0 ]; then
+        GRX_FOUND="openhrp-3.0.7"
+    fi  
+    # OpenHRP 3.1.0 takes over OpenHRP 3.0.7
+    if [ -d /opt/grx ]; then
+        GRX_FOUND="openhrp-3.1.0"
+    fi
+
+    echo "GRX_FOUND is ${GRX_FOUND}"
+}
 
 
 set -e
@@ -76,12 +90,14 @@ if [ "${LAAS_USER_ACCOUNT}" == "" ]; then
   INRIA_URI=https://gforge.inria.fr/git/romeo-sot
   JRL_URI=git://github.com/jrl-umi3218
   LAAS_URI=git://github.com/laas 
+  STACK_OF_TASKS_URI=git://github.com/stack-of-tasks
 else 
   # Git URLs
   INRIA_URI=https://gforge.inria.fr/git/romeo-sot
   JRL_URI=git@github.com:jrl-umi3218
   LAAS_URI=git@github.com:laas
   LAAS_PRIVATE_URI=ssh://${LAAS_USER_ACCOUNT}@softs.laas.fr/git/jrl
+  STACK_OF_TASKS_URI=git://github.com/stack-of-tasks
 fi
 
 
@@ -113,9 +129,6 @@ create_local_db()
   let "index= $index +1"
 
   inst_array[index]="install_pkg $SRC_DIR/robots romeo-sot.git ${INRIA_URI}"
-  let "index= $index + 1"
-
-  inst_array[index]="install_pkg $SRC_DIR/robots sot-romeo.git ${JRL_URI}"
   let "index= $index + 1"
 
   if [ "${LAAS_PRIVATE_URI}" != "" ]; then
@@ -188,15 +201,27 @@ create_local_db()
   inst_array[index]="install_ros_ws_package romeo_description"
   let "index= $index + 1"
 
+  inst_array[index]="install_pkg $SRC_DIR/robots sot-romeo.git ${JRL_URI}"
+  let "index= $index + 1"
+
   if [ "${LAAS_PRIVATE_URI}" != "" ]; then
     inst_array[index]="install_pkg $SRC_DIR/sot sot-hrp2 ${LAAS_URI}"
     let "index= $index + 1"
 
-    inst_array[index]="install_ros_ws_package openhrp_bridge"
-    let "index= $index + 1"
+    if [ $GRX_FOUND == "openhrp-3.0.7" ]; then
+      
+      inst_array[index]="install_ros_ws_package openhrp_bridge"
+      let "index= $index + 1"
 
-    inst_array[index]="install_pkg $SRC_DIR/sot sot-hrp2-hrpsys ${LAAS_URI}"
-    let "index= $index + 1"
+      inst_array[index]="install_pkg $SRC_DIR/sot sot-hrp2-hrpsys ${LAAS_URI}"
+      let "index= $index + 1"
+    fi
+
+    if [ $GRX_FOUND == "openhrp-3.1.0" ]; then
+      inst_array[index]="install_pkg $SRC_DIR/sot sot-hrprtc-hrp2 ${STACK_OF_TASKS_URI}"
+      let "index= $index + 1"
+    fi
+    
   fi
 
   for ((lindex=0; lindex<${#inst_array[@]} ; lindex++ ))
@@ -214,6 +239,7 @@ display_list_instructions()
   done
 }
 
+detect_grx
 create_local_db
 
 # Deal with options
