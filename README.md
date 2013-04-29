@@ -46,7 +46,7 @@ Usage: `basename $0` [-h] ros_subdir installation_level
           This also display the internal instructions run by the script.
           To use -l you HAVE TO specify ros_install_path and installation_level.
           With -l the instructions are displayed but not run.
-
+     -g : OpenHRP 3.0.7 has a priority than OpenHRP 3.1.0. Default is the reverse.
 
 LAAS_USER_ACCOUNT
 =================

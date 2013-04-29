@@ -27,7 +27,7 @@ usage_message()
   echo "        This also display the internal instructions run by the script."
   echo "        To use -l you HAVE TO specify ros_install_path and installation_level." 
   echo "        With -l the instructions are displayed but not run."
-  echo "   -g : OpenHRP 3.0.7 has a priority than OpenHRP 3.1.0. Default is reversed. "
+  echo "   -g : OpenHRP 3.0.7 has a priority than OpenHRP 3.1.0. Default is the reverse. "
   echo ""
   if [ "${LAAS_USER_ACCOUNT}" == "" ]; then
     echo "If you have a laas user account you should set the environment variable"
