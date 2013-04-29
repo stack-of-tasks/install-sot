@@ -27,6 +27,7 @@ usage_message()
   echo "        This also display the internal instructions run by the script."
   echo "        To use -l you HAVE TO specify ros_install_path and installation_level." 
   echo "        With -l the instructions are displayed but not run."
+  echo "   -g : OpenHRP 3.0.7 has a priority than OpenHRP 3.1.0. Default is reversed. "
   echo ""
   if [ "${LAAS_USER_ACCOUNT}" == "" ]; then
     echo "If you have a laas user account you should set the environment variable"
@@ -39,12 +40,23 @@ usage_message()
 detect_grx()
 {
     GRX_FOUND=""
-    if [ -d /opt/grx3.0 ]; then
+    priorityvar1=$1
+    if (( priorityvar1 > 0 )); then
+      if [ -d /opt/grx3.0 ]; then
         GRX_FOUND="openhrp-3.0.7"
-    fi  
-    # OpenHRP 3.1.0 takes over OpenHRP 3.0.7
-    if [ -d /opt/grx ]; then
+      fi  
+      # OpenHRP 3.1.0 takes over OpenHRP 3.0.7
+      if [ -d /opt/grx ]; then
         GRX_FOUND="openhrp-3.1.0"
+      fi
+    else
+      if [ -d /opt/grx ]; then
+        GRX_FOUND="openhrp-3.1.0"
+      fi
+      # OpenHRP 3.0.7 takes over OpenHRP 3.1.0
+      if [ -d /opt/grx3.0 ]; then
+        GRX_FOUND="openhrp-3.0.7"
+      fi  
     fi
 
     echo "GRX_FOUND is ${GRX_FOUND}"
@@ -52,6 +64,30 @@ detect_grx()
 
 
 set -e
+ARG_DETECT_GRX=1
+DISPLAY_LIST_INSTRUCTIONS=0
+# Deal with options
+while getopts ":ghl:" option; do
+  case "$option" in
+    g)  ARG_DETECT_GRX=0
+        ;;
+    h)  # it's always useful to provide some help 
+        usage_message
+        exit 0 
+        ;;
+    l)  DISPLAY_LIST_INSTRUCTIONS=1
+        ;;      
+    :)  echo "Error: -$option requires an argument" 
+        usage_message
+        exit 1
+        ;;
+    ?)  echo "Error: unknown option -$option" 
+        usage_message
+        exit 1
+        ;;
+  esac
+done    
+shift $(($OPTIND-1))
 
 ROS_VERSION=electric # ROS VERSION used: electric or fuerte
  
@@ -239,30 +275,13 @@ display_list_instructions()
   done
 }
 
-detect_grx
+detect_grx $ARG_DETECT_GRX
 create_local_db
 
-# Deal with options
-while getopts ":hl:" option; do
-  case "$option" in
-    h)  # it's always useful to provide some help 
-        usage_message
-        exit 0 
-        ;;
-    l)  display_list_instructions
-        exit 0
-        ;;
-    :)  echo "Error: -$option requires an argument" 
-        usage_message
-        exit 1
-        ;;
-    ?)  echo "Error: unknown option -$option" 
-        usage_message
-        exit 1
-        ;;
-  esac
-done    
-shift $(($OPTIND-1))
+if (( DISPLAY_LIST_INSTRUCTIONS > 0 )); then
+  display_list_instructions
+  exit 0
+fi
 
 # Check number of arguments
 EXPECTED_ARGS=2
@@ -271,6 +290,8 @@ then
   echo "Error: Bad number of parameters " $#
   usage_message
   exit $E_BADARGS
+else
+  echo "Parameters found:" $1 $2
 fi
 
 install_level=$2
