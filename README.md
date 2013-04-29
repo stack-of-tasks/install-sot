@@ -60,3 +60,9 @@ rsync -avz $HOME/devel/ros-unstable username@robotc:./devel/
 will copy the overall control architecture in
 the home directory of username in computer robotc (could be hrp2c).
 
+
+Requirements:
+=============
+gfortran
+lapack
+ros-pr2-controllers
