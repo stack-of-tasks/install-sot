@@ -249,6 +249,9 @@ create_local_db()
       inst_array[index]="install_ros_ws_package openhrp_bridge"
       let "index= $index + 1"
 
+      inst_array[index]="install_ros_ws_package openhrp_bridge_msgs"
+      let "index= $index + 1"
+
       inst_array[index]="install_pkg $SRC_DIR/sot sot-hrp2-hrpsys ${LAAS_URI}"
       let "index= $index + 1"
     fi
