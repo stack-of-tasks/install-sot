@@ -525,7 +525,10 @@ update_ros_setup()
 
 # Setup environment variables.
 export LD_LIBRARY_PATH="${INSTALL_DIR}/lib"
-export PKG_CONFIG_PATH="${INSTALL_DIR}/lib/`arch`-linux-gnu/pkgconfig":$PKG_CONFIG_PATH
+arch_path=`dpkg-architecture -qDEB_HOST_MULTIARCH`
+if [ $? -eq 0 ];  then
+  export PKG_CONFIG_PATH="${INSTALL_DIR}/lib/$arch_path/pkgconfig"
+fi;
 export PKG_CONFIG_PATH="${INSTALL_DIR}/lib/pkgconfig":$PKG_CONFIG_PATH
 export PYTHONPATH="${INSTALL_DIR}/lib/python2.6/dist-packages:$PYTHONPATH:$PYTHON_PATH"
 export PATH="$PATH:${INSTALL_DIR}/bin:${INSTALL_DIR}/sbin"
