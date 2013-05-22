@@ -244,7 +244,7 @@ create_local_db()
     inst_array[index]="install_pkg $SRC_DIR/sot sot-hrp2 ${LAAS_URI}"
     let "index= $index + 1"
 
-    if [ $GRX_FOUND == "openhrp-3.0.7" ]; then
+    if [ "$GRX_FOUND" == "openhrp-3.0.7" ]; then
       
       inst_array[index]="install_ros_ws_package openhrp_bridge"
       let "index= $index + 1"
@@ -256,7 +256,7 @@ create_local_db()
       let "index= $index + 1"
     fi
 
-    if [ $GRX_FOUND == "openhrp-3.1.0" ]; then
+    if [ "$GRX_FOUND" == "openhrp-3.1.0" ]; then
       inst_array[index]="install_pkg $SRC_DIR/sot sot-hrprtc-hrp2 ${STACK_OF_TASKS_URI}"
       let "index= $index + 1"
     fi
