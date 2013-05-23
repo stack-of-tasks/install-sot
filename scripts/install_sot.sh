@@ -28,6 +28,8 @@ usage_message()
   echo "        To use -l you HAVE TO specify ros_install_path and installation_level." 
   echo "        With -l the instructions are displayed but not run."
   echo "   -g : OpenHRP 3.0.7 has a priority than OpenHRP 3.1.0. Default is the reverse. "
+  echo "   -m : Compile the sources without updating them "
+  echo "   -u : Update the sources without compiling them "
   echo ""
   if [ "${LAAS_USER_ACCOUNT}" == "" ]; then
     echo "If you have a laas user account you should set the environment variable"
@@ -63,15 +65,15 @@ detect_grx()
 }
 
 
-UPDATE_PACKAGE=1		# 1 to run the update the packages, 0 otherwise
-COMPILE_PACKAGE=1       # 0 to compile the packages, 0 otherwise
+UPDATE_PACKAGE=1        # 1 to run the update the packages, 0 otherwise
+COMPILE_PACKAGE=1       # 1 to compile the packages, 0 otherwise
 
 set -e
 ARG_DETECT_GRX=1
 DISPLAY_LIST_INSTRUCTIONS=0
 
 # Deal with options
-while getopts ":ghl:" option; do
+while getopts ":ghlmu" option; do
   case "$option" in
     g)  ARG_DETECT_GRX=0
         ;;
@@ -80,7 +82,13 @@ while getopts ":ghl:" option; do
         exit 0 
         ;;
     l)  DISPLAY_LIST_INSTRUCTIONS=1
-        ;;      
+        ;;
+    m)  COMPILE_PACKAGE=1
+        UPDATE_PACKAGE=0
+        ;;
+    u)  COMPILE_PACKAGE=0
+        UPDATE_PACKAGE=1
+        ;;
     :)  echo "Error: -$option requires an argument" 
         usage_message
         exit 1
@@ -508,9 +516,9 @@ install_ros_ws()
 
 install_ros_ws_package()
 {
-	if (( COMPILE_PACKAGE = 0 )); then
-	    return
-	fi
+    if [ $COMPILE_PACKAGE -eq 0 ]; then
+        return
+    fi
 
     echo "### Install ros package $1"
     # Go to the rospackage build directory.
