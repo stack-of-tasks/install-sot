@@ -63,9 +63,13 @@ detect_grx()
 }
 
 
+UPDATE_PACKAGE=1		# 1 to run the update the packages, 0 otherwise
+COMPILE_PACKAGE=1       # 0 to compile the packages, 0 otherwise
+
 set -e
 ARG_DETECT_GRX=1
 DISPLAY_LIST_INSTRUCTIONS=0
+
 # Deal with options
 while getopts ":ghl:" option; do
   case "$option" in
@@ -380,10 +384,9 @@ install_doxygen()
     ${MAKE} ${MAKE_OPTS} install
 }
 
-install_pkg()
+update_pkg()
 {
-    # Go to the repository
-    cd $1
+    OLD_PWD=`pwd`
 
     # Update the repo
     if test -d "$2"; then
@@ -404,6 +407,22 @@ install_pkg()
        fi
     fi
 
+    # Configure the repository
+    ${GIT} submodule init && ${GIT} submodule update
+
+    cd $OLD_PWD
+}
+
+compile_pkg()
+{
+    # Update the repo
+    if ! test -d "$2"; then
+        echo The repository $2 does not exist
+        exit -1
+    fi
+
+    cd $2
+
     # Choose the build type
     if ! test x"$5" = x; then
 	local_build_type=$5
@@ -413,8 +432,6 @@ install_pkg()
 	local_cflags=${CFLAGS}
     fi
 
-    # Configure the repository
-    ${GIT} submodule init && ${GIT} submodule update
     mkdir -p _build-$local_build_type
     cd _build-$local_build_type
     echo ${CMAKE} \
@@ -435,6 +452,19 @@ install_pkg()
     # Build the repository
     ${MAKE} ${MAKE_OPTS}
     ${MAKE} install ${MAKE_OPTS}
+}
+
+install_pkg()
+{
+    # Go to the repository
+    cd $1
+
+	if (( UPDATE_PACKAGE > 0 )); then
+	    update_pkg $@
+	fi
+	if (( COMPILE_PACKAGE > 0 )); then
+	    compile_pkg $@
+	fi
 }
 
 install_python_pkg()
@@ -478,6 +508,10 @@ install_ros_ws()
 
 install_ros_ws_package()
 {
+	if (( COMPILE_PACKAGE = 0 )); then
+	    return
+	fi
+
     echo "### Install ros package $1"
     # Go to the rospackage build directory.
     roscd $1
