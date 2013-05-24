@@ -502,7 +502,8 @@ install_ros_legacy()
     sudo chmod 644 /etc/apt/sources.list.d/ros-latest.list
     wget http://packages.ros.org/ros.key -O - | sudo apt-key add -
     sudo apt-get install ros-$ROS_VERSION-desktop-full
-    sudo apt-get install ros-fuerte-pr2-mechanism      # for realtime_tools
+    sudo apt-get install ros-$ROS_VERSION-pr2-mechanism      # for realtime_tools
+    sudo apt-get install ros-$ROS_VERSION-documentation
     sudo apt-get install python-setuptools python-pip
     sudo pip install -U rosinstall
 }
