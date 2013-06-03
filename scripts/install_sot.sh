@@ -341,7 +341,7 @@ mkdir -p                \
 # compare two versions. Taks two arguments: a and b
 # return -1 if a<b, 0 if a=b, 1 if a>b
 # source: http://stackoverflow.com/questions/3511006/how-to-compare-versions-of-some-products-in-unix-shell
-compareVersions ()
+compare_versions ()
 {
   echo 'compateVersions' $1 $2
   typeset    IFS='.'
@@ -365,7 +365,7 @@ install_git()
     git --version &> /dev/null
     if [ $? -eq 0 ];  then
       res=`git --version | awk ' { print $3 }'`
-      comp=`compareVersions "$res" "1.7.4.1"`
+      comp=`compare_versions "$res" "1.7.4.1"`
       echo $comp
       if [[ "$comp" > "-1" ]]; then
         # 'Git already installed'
@@ -395,7 +395,7 @@ install_doxygen()
     doxygen --version &> /dev/null
     if [ $? -eq 0 ];  then
       res=`doxygen --version | awk ' { print $1 }'`
-      comp=`compareVersions "$res" "1.7.3"`
+      comp=`compare_versions "$res" "1.7.3"`
       if [[ "$comp" > "-1" ]]; then
         # 'doxygen already installed'
         return
@@ -595,14 +595,16 @@ update_ros_setup()
 
 
 # Setup environment variables.
-export LD_LIBRARY_PATH="${INSTALL_DIR}/lib"
-arch_path=`dpkg-architecture -qDEB_HOST_MULTIARCH`
-if [ $? -eq 0 ];  then
-  export PKG_CONFIG_PATH="${INSTALL_DIR}/lib/$arch_path/pkgconfig"
-fi;
 export PKG_CONFIG_PATH="${INSTALL_DIR}/lib/pkgconfig":$PKG_CONFIG_PATH
-export PYTHONPATH="${INSTALL_DIR}/lib/python2.6/dist-packages:$PYTHONPATH:$PYTHON_PATH"
-export PATH="$PATH:${INSTALL_DIR}/bin:${INSTALL_DIR}/sbin"
+
+# check the multiarch extension, only available for dpkg-architecture > 1.16.0
+dpkg_version=`dpkg-architecture --version | head -n 1 | awk '{print $4}'`
+if [[ `compare_versions "$dpkg_version" "1.16.0"` > "-1" ]];  then
+  arch_path=`dpkg-architecture -qDEB_HOST_MULTIARCH`
+  if [ $? -eq 0 ];  then
+    export PKG_CONFIG_PATH="${INSTALL_DIR}/lib/$arch_path/pkgconfig":$PKG_CONFIG_PATH
+  fi;
+fi;
 
 
 run_instructions()
