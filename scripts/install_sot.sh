@@ -343,7 +343,6 @@ mkdir -p                \
 # source: http://stackoverflow.com/questions/3511006/how-to-compare-versions-of-some-products-in-unix-shell
 compare_versions ()
 {
-  echo 'compateVersions' $1 $2
   typeset    IFS='.'
   typeset -a v1=( $1 )
   typeset -a v2=( $2 )
