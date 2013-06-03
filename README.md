@@ -6,8 +6,9 @@ Quick Start
 ===========
 
 To start the installation, you should
-1/ Set your LAAS user account
-2/ call:
+1/ Set your version of ROS
+2/ Set your LAAS user account (optional)
+3/ call:
 install_sot.sh ros-unstable level_to_start
 
 If ros is installed, as well as git and doxygen,
@@ -25,7 +26,7 @@ The repositories will be cloned in :
 $HOME/devel/ros-unstable/src
 
 The installation will then done in:
-$HOME/devel/ros/install
+$HOME/devel/ros-unstable/install
 
 Usage
 =====
@@ -47,6 +48,8 @@ Usage: `basename $0` [-h] ros_subdir installation_level
           To use -l you HAVE TO specify ros_install_path and installation_level.
           With -l the instructions are displayed but not run.
      -g : OpenHRP 3.0.7 has a priority than OpenHRP 3.1.0. Default is the reverse.
+     -m : Compile the sources without updating them
+     -u : Update the sources without compiling them
 
 LAAS_USER_ACCOUNT
 =================
