@@ -338,13 +338,36 @@ mkdir -p                \
     $SRC_DIR/robots     \
     $SRC_DIR/sot
 
+# compare two versions. Taks two arguments: a and b
+# return -1 if a<b, 0 if a=b, 1 if a>b
+# source: http://stackoverflow.com/questions/3511006/how-to-compare-versions-of-some-products-in-unix-shell
+compareVersions ()
+{
+  echo 'compateVersions' $1 $2
+  typeset    IFS='.'
+  typeset -a v1=( $1 )
+  typeset -a v2=( $2 )
+  typeset    n diff
+
+  for (( n=0; n<4; n+=1 )); do
+    diff=$((v1[n]-v2[n]))
+    if [ $diff -ne 0 ] ; then
+      [ $diff -le 0 ] && echo '-1' || echo '1'
+      return
+    fi
+  done
+  echo '0'
+}
+
 install_git()
 {
     #checking whether git is already installed.
     git --version &> /dev/null
     if [ $? -eq 0 ];  then
       res=`git --version | awk ' { print $3 }'`
-      if [[ "$res" > "1.7.4.1" ]] || [[ "$res" == "1.7.4.1" ]]; then
+      comp=`compareVersions "$res" "1.7.4.1"`
+      echo $comp
+      if [[ "$comp" > "-1" ]]; then
         # 'Git already installed'
         return
       else
@@ -372,7 +395,8 @@ install_doxygen()
     doxygen --version &> /dev/null
     if [ $? -eq 0 ];  then
       res=`doxygen --version | awk ' { print $1 }'`
-      if [[ "$res" > "1.7.3" ]] || [[ "$res" == "1.7.3" ]]; then
+      comp=`compareVersions "$res" "1.7.3"`
+      if [[ "$comp" > "-1" ]]; then
         # 'doxygen already installed'
         return
       else
