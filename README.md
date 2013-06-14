@@ -69,3 +69,5 @@ Requirements:
 gfortran
 lapack
 ros-pr2-controllers
+omniidl
+
