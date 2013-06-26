@@ -237,6 +237,12 @@ create_local_db()
   inst_array[index]="install_pkg $SRC_DIR/sot sot-dynamic ${JRL_URI}"
   let "index= $index + 1"
 
+  inst_array[index]="install_pkg $SRC_DIR/sot soth ${LAAS_URI}"
+  let "index= $index + 1"
+
+  inst_array[index]="install_pkg $SRC_DIR/sot sot-dyninv ${LAAS_URI}"
+  let "index= $index + 1"
+
   inst_array[index]="install_pkg $SRC_DIR/sot sot-application ${STACK_OF_TASKS_URI}"
   let "index= $index + 1"
 
