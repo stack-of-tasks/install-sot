@@ -163,6 +163,8 @@ else
   STACK_OF_TASKS_URI=git://github.com/stack-of-tasks
 fi
 
+IDH_PRIVATE_URI= 
+
 
 
 # HTTP protocol can also be used:
@@ -194,10 +196,16 @@ create_local_db()
   inst_array[index]="install_pkg $SRC_DIR/robots romeo-sot.git ${INRIA_URI}"
   let "index= $index + 1"
 
+  if [ "${IDH_PRIVATE_URI}" != "" ]; then
+    inst_array[index]="install_pkg $SRC_DIR/robots hrp4_sot.git ${IDH_PRIVATE_URI}"
+    let "index= $index + 1"
+  fi
+
   if [ "${LAAS_PRIVATE_URI}" != "" ]; then
     inst_array[index]="install_ros_ws_package hrp2_14_description"
     let "index= $index + 1"
   fi
+
 
   inst_array[index]="install_pkg $SRC_DIR/jrl jrl-mathtools ${JRL_URI}"
   let "index= $index + 1"
@@ -276,10 +284,20 @@ create_local_db()
   inst_array[index]="install_pkg $SRC_DIR/robots sot-romeo.git ${JRL_URI}"
   let "index= $index + 1"
 
+  if [ "${IDH_PRIVATE_URI}" != "" ]; then
+    inst_array[index]="install_ros_ws_package hrp4_description"
+    let "index= $index + 1"
+
+    inst_array[index]="install_pkg $SRC_DIR/robots sot-hrp4.git ${IDH_PRIVATE_URI}"
+    let "index= $index + 1"
+  fi
+
   if [ "${LAAS_PRIVATE_URI}" != "" ]; then
     inst_array[index]="install_pkg $SRC_DIR/sot sot-hrp2 ${LAAS_URI}"
     let "index= $index + 1"
+  fi
 
+  if [ "${LAAS_PRIVATE_URI}" != "" ] || [ "${IDH_PRIVATE_URI}" != "" ]; then
     if [ "$GRX_FOUND" == "openhrp-3.0.7" ]; then
       
       inst_array[index]="install_ros_ws_package openhrp_bridge"
@@ -617,6 +635,12 @@ install_ros_ws()
     rosinstall $SOT_ROOT_DIR https://raw.github.com/laas/ros/$gh_ros_sub_dir/laas.rosinstall /opt/ros/$ROS_VERSION
     if [ "${LAAS_PRIVATE_URI}" != "" ]; then
       rosinstall $SOT_ROOT_DIR https://raw.github.com/laas/ros/$gh_ros_sub_dir/laas-private.rosinstall
+    fi
+
+    if [ "${IDH_PRIVATE_URI}" != "" ]; then
+      echo -e "- git:\n    uri: git@idh.lirmm.fr:mcp/ros/hrp4/hrp4_urdf.git\n" \
+           "   local-name: stacks/hrp4\n    version: "${ROS_VERSION} > /tmp/idh-private.rosinstall
+      rosinstall ~/devel/$ROS_DEVEL_NAME  /tmp/idh-private.rosinstall
     fi
 
     # create the config file.
