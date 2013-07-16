@@ -22,7 +22,8 @@ usage_message()
   echo "    the installation."
   echo ""
   echo "Options:"
-  echo "   -h : Display help"
+  echo "   -h : Display help."
+  echo "   -r ros_release : Specifies the ros release to use."
   echo "   -l : Display the steps where the script can be started for installing."
   echo "        This also display the internal instructions run by the script."
   echo "        To use -l you HAVE TO specify ros_install_path and installation_level." 
@@ -73,7 +74,7 @@ ARG_DETECT_GRX=1
 DISPLAY_LIST_INSTRUCTIONS=0
 
 # Deal with options
-while getopts ":ghlmu" option; do
+while getopts ":ghlmur:" option; do
   case "$option" in
     g)  ARG_DETECT_GRX=0
         ;;
@@ -89,6 +90,8 @@ while getopts ":ghlmu" option; do
     u)  COMPILE_PACKAGE=0
         UPDATE_PACKAGE=1
         ;;
+    r)  ROS_VERSION=$OPTARG
+        ;;
     :)  echo "Error: -$option requires an argument" 
         usage_message
         exit 1
@@ -101,11 +104,19 @@ while getopts ":ghlmu" option; do
 done    
 shift $(($OPTIND-1))
 
-ROS_VERSION=electric # ROS VERSION used: electric or fuerte
+if [ "$ROS_VERSION" == "" ]; then
+  ROS_VERSION=electric # ROS VERSION by default electric
+fi
+echo "ROS_VERSION is $ROS_VERSION"
  
 ## Environment variables
 
 # Setup ROS variables
+if [ ! -d /opt/ros/$ROS_VERSION ]; then 
+    echo "ROS_VERSION $ROS_VERSION does not appear to be installed"
+    exit 1
+fi
+
 . /opt/ros/$ROS_VERSION/setup.bash
 
 ROS_DEVEL_NAME=$1
@@ -115,7 +126,7 @@ INSTALL_DIR=$HOME/devel/$ROS_DEVEL_NAME/install
 export ROS_ROOT=/opt/ros/$ROS_VERSION/ros
 export PATH=$ROS_ROOT/bin:$PATH
 export PYTHONPATH=$ROS_ROOT/core/roslib/src:$PYTHONPATH
-export ROS_PACKAGE_PATH=~/devel/$ROS_DEVEL_NAME:~/devel/$ROS_DEVEL_NAME/stacks/hrp2:~/devel/$ROS_DEVEL_NAME/stacks/ethzasl_ptam:/opt/ros/electric/stacks:/opt/ros/electric/stacks/ros_realtime:$ROS_PACKAGE_PATH
+export ROS_PACKAGE_PATH=~/devel/$ROS_DEVEL_NAME:~/devel/$ROS_DEVEL_NAME/stacks/hrp2:/opt/ros/electric/stacks:/opt/ros/electric/stacks/ros_realtime:$ROS_PACKAGE_PATH
 
 # Use environment variables to override these options
 : ${GIT=/usr/bin/git}
@@ -541,9 +552,18 @@ install_ros_legacy()
 
 install_ros_ws()
 {
-    rosinstall ~/devel/$ROS_DEVEL_NAME https://raw.github.com/laas/ros/master/laas.rosinstall /opt/ros/$ROS_VERSION
+    # Current groovy and hydro are considered likewise.
+    gh_ros_sub_dir=master
+    if [ "$ROS_VERSION" == "electric" ]; then
+        gh_ros_sub_dir=topic/electric
+    fi
+    if [ "$ROS_VERSION" == "fuerte" ]; then
+        gh_ros_sub_dir=topic/fuerte
+    fi
+
+    rosinstall ~/devel/$ROS_DEVEL_NAME https://raw.github.com/laas/ros/$gh_ros_sub_dir/laas.rosinstall /opt/ros/$ROS_VERSION
     if [ "${LAAS_PRIVATE_URI}" != "" ]; then
-      rosinstall ~/devel/$ROS_DEVEL_NAME https://raw.github.com/laas/ros/master/laas-private.rosinstall
+      rosinstall ~/devel/$ROS_DEVEL_NAME https://raw.github.com/laas/ros/$gh_ros_sub_dir/laas-private.rosinstall
     fi
 }
 
