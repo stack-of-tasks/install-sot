@@ -123,13 +123,14 @@ fi
 . /opt/ros/$ROS_VERSION/setup.bash
 
 ROS_DEVEL_NAME=$1
-SRC_DIR=$HOME/devel/$ROS_DEVEL_NAME/src
-INSTALL_DIR=$HOME/devel/$ROS_DEVEL_NAME/install
+SOT_ROOT_DIR=$HOME/devel/$ROS_DEVEL_NAME
+SRC_DIR=$SOT_ROOT_DIR/src
+INSTALL_DIR=$SOT_ROOT_DIR/install
 
 export ROS_ROOT=/opt/ros/$ROS_VERSION/ros
 export PATH=$ROS_ROOT/bin:$PATH
 export PYTHONPATH=$ROS_ROOT/core/roslib/src:$PYTHONPATH
-export ROS_PACKAGE_PATH=~/devel/$ROS_DEVEL_NAME:~/devel/$ROS_DEVEL_NAME/stacks/hrp2:/opt/ros/electric/stacks:/opt/ros/electric/stacks/ros_realtime:$ROS_PACKAGE_PATH
+export ROS_PACKAGE_PATH=$SOT_ROOT_DIR:$SOT_ROOT_DIR/stacks/hrp2:/opt/ros/electric/stacks:/opt/ros/electric/stacks/ros_realtime:$ROS_PACKAGE_PATH
 
 # Use environment variables to override these options
 : ${GIT=/usr/bin/git}
@@ -569,9 +570,9 @@ install_ros_ws()
         gh_ros_sub_dir=topic/fuerte
     fi
 
-    rosinstall ~/devel/$ROS_DEVEL_NAME https://raw.github.com/laas/ros/$gh_ros_sub_dir/laas.rosinstall /opt/ros/$ROS_VERSION
+    rosinstall $SOT_ROOT_DIR https://raw.github.com/laas/ros/$gh_ros_sub_dir/laas.rosinstall /opt/ros/$ROS_VERSION
     if [ "${LAAS_PRIVATE_URI}" != "" ]; then
-      rosinstall ~/devel/$ROS_DEVEL_NAME https://raw.github.com/laas/ros/$gh_ros_sub_dir/laas-private.rosinstall
+      rosinstall $SOT_ROOT_DIR https://raw.github.com/laas/ros/$gh_ros_sub_dir/laas-private.rosinstall
     fi
 }
 
@@ -623,8 +624,8 @@ install_ros_ws_package()
 update_ros_setup()
 {
   echo "update ros setup"
-  if [ -f ~/devel/$ROS_DEVEL_NAME/setup.bash ]; then 
-    source ~/devel/$ROS_DEVEL_NAME/setup.bash
+  if [ -f $SOT_ROOT_DIR/setup.bash ]; then 
+    source $SOT_ROOT_DIR/setup.bash
   fi
 }
 
