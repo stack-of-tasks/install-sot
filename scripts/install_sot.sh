@@ -559,6 +559,50 @@ install_ros_legacy()
     fi
 }
 
+
+
+
+# create a config file to load all env parameters
+install_config()
+{
+    # get python site packages path
+    PYTHON_SITELIB=`python -c "import sys, os; print os.sep.join(['lib', 'python' + sys.version[:3], 'site-packages'])"`
+
+    # get dpkg version
+    dpkg_version=`dpkg-architecture --version | head -n 1 | awk '{print $4}'`
+    comp=`compare_versions "$dpkg_version" "1.16.0"`
+    if [[ $comp -ge 0 ]];  then
+      arch_path=`dpkg-architecture -qDEB_HOST_MULTIARCH`
+    fi;
+
+    # load ros info
+    source $SOT_ROOT_DIR/setup.bash
+
+    # create the file
+    CONFIG_FILE=config.sh
+    echo "#!/bin/sh"                                >  $CONFIG_FILE
+    echo "source /opt/ros/$ROS_DISTRO/setup.bash"   >> $CONFIG_FILE
+    echo "ROS_WS_DIR=\$HOME/devel/$ROS_DEVEL_NAME"  >> $CONFIG_FILE
+    echo "source \$ROS_WS_DIR/setup.bash"           >> $CONFIG_FILE
+    echo "ROS_WS_DIR=\$HOME/devel/$ROS_DEVEL_NAME"  >> $CONFIG_FILE
+    echo "ROS_INSTALL_DIR=$INSTALL_DIR"             >> $CONFIG_FILE
+    echo "export ROBOT=\"$ROBOT\""                  >> $CONFIG_FILE
+    echo "export ROS_ROOT=/opt/ros/$ROS_DISTRO/ros" >> $CONFIG_FILE
+    echo "export PATH=\$ROS_ROOT/bin:\$PATH"        >> $CONFIG_FILE
+    echo "export PYTHONPATH=\$ROS_ROOT/core/roslib/src:\$ROS_INSTALL_DIR/$PYTHON_SITELIB:\$PYTHONPATH" >> $CONFIG_FILE
+    echo "export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/usr/local/lib/pkgconfig:/opt/grx/lib/pkgconfig"     >> $CONFIG_FILE
+    echo "export ROS_PACKAGE_PATH=\$ROS_WS_DIR:\$ROS_WS_DIR/stacks/hrp2:\$ROS_WS_DIR/stacks/ethzasl_ptam:/opt/ros/${ROS_DISTRO}/stacks:/opt/ros/\${ROS_DISTRO}/stacks/ros_realtime:\$ROS_PACKAGE_PATH" >> $CONFIG_FILE
+    echo "export LD_LIBRARY_PATH=\$ROS_INSTALL_DIR/lib/plugin:\$LD_LIBRARY_PATH" >> $CONFIG_FILE
+    echo "export LD_LIBRARY_PATH=\$ROS_INSTALL_DIR/lib:\$LD_LIBRARY_PATH" >> $CONFIG_FILE
+    if [ $? -eq 0 ];  then
+        echo "export LD_LIBRARY_PATH=\$ROS_INSTALL_DIR/lib/$arch_path/plugin:\$LD_LIBRARY_PATH" >> $CONFIG_FILE
+        echo "export LD_LIBRARY_PATH=\$ROS_INSTALL_DIR/lib/$arch_path:\$LD_LIBRARY_PATH" >> $CONFIG_FILE
+    fi;
+    echo "export ROS_MASTER_URI=http://localhost:11311" >> $CONFIG_FILE
+}
+
+
+# install all ros stack required
 install_ros_ws()
 {
     # Current groovy and hydro are considered likewise.
@@ -574,6 +618,9 @@ install_ros_ws()
     if [ "${LAAS_PRIVATE_URI}" != "" ]; then
       rosinstall $SOT_ROOT_DIR https://raw.github.com/laas/ros/$gh_ros_sub_dir/laas-private.rosinstall
     fi
+
+    # create the config file.
+    install_config
 }
 
 install_ros_ws_package()
