@@ -69,6 +69,9 @@ detect_grx()
 UPDATE_PACKAGE=1        # 1 to run the update the packages, 0 otherwise
 COMPILE_PACKAGE=1       # 1 to compile the packages, 0 otherwise
 
+. /etc/lsb-release 
+echo "Distribution is $DISTRIB_CODENAME"
+
 set -e
 ARG_DETECT_GRX=1
 DISPLAY_LIST_INSTRUCTIONS=0
@@ -540,7 +543,7 @@ install_python_pkg()
 
 install_ros_legacy()
 {
-    sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu lucid main" > /etc/apt/sources.list.d/ros-latest.list'
+    sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $DISTRIB_CODENAME main" > /etc/apt/sources.list.d/ros-latest.list'
     sudo chmod 644 /etc/apt/sources.list.d/ros-latest.list
     wget http://packages.ros.org/ros.key -O - | sudo apt-key add -
     sudo apt-get install ros-$ROS_VERSION-desktop-full
