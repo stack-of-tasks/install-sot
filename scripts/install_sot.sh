@@ -587,7 +587,7 @@ install_config()
     echo "ROS_WS_DIR=\$HOME/devel/$ROS_DEVEL_NAME"  >> $CONFIG_FILE
     echo "ROS_INSTALL_DIR=$INSTALL_DIR"             >> $CONFIG_FILE
     echo "export ROBOT=\"$ROBOT\""                  >> $CONFIG_FILE
-    echo "export ROS_ROOT=/opt/ros/$ROS_DISTRO/ros" >> $CONFIG_FILE
+    echo "export ROS_ROOT=/opt/ros/$ROS_DISTRO"     >> $CONFIG_FILE
     echo "export PATH=\$ROS_ROOT/bin:\$PATH"        >> $CONFIG_FILE
     echo "export PYTHONPATH=\$ROS_ROOT/core/roslib/src:\$ROS_INSTALL_DIR/$PYTHON_SITELIB:\$PYTHONPATH" >> $CONFIG_FILE
     echo "export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/usr/local/lib/pkgconfig:/opt/grx/lib/pkgconfig"     >> $CONFIG_FILE
