@@ -551,6 +551,11 @@ install_ros_legacy()
     sudo apt-get install ros-$ROS_VERSION-documentation
     sudo apt-get install python-setuptools python-pip
     sudo pip install -U rosinstall
+
+    if [ "$ROS_VERSION"=="fuerte" ]; then
+      sudo apt-get install ros-fuerte-robot-model
+      sudo apt-get install ros-fuerte-pr2-mechanism
+    fi
 }
 
 install_ros_ws()
