@@ -65,7 +65,7 @@ detect_grx()
     echo "GRX_FOUND is ${GRX_FOUND}"
 }
 
-
+REMOVE_CMAKECACHE=0     # 1 to rm CMakeCache.txt
 UPDATE_PACKAGE=1        # 1 to run the update the packages, 0 otherwise
 COMPILE_PACKAGE=1       # 1 to compile the packages, 0 otherwise
 
@@ -77,7 +77,7 @@ ARG_DETECT_GRX=1
 DISPLAY_LIST_INSTRUCTIONS=0
 
 # Deal with options
-while getopts ":ghlmur:" option; do
+while getopts ":cghlmur" option; do
   case "$option" in
     g)  ARG_DETECT_GRX=0
         ;;
@@ -87,6 +87,10 @@ while getopts ":ghlmur:" option; do
         ;;
     l)  DISPLAY_LIST_INSTRUCTIONS=1
         ;;
+
+    c)  REMOVE_CMAKECACHE=1
+		;;
+
     m)  COMPILE_PACKAGE=1
         UPDATE_PACKAGE=0
         ;;
@@ -506,6 +510,9 @@ compile_pkg()
 
     mkdir -p _build-$local_build_type
     cd _build-$local_build_type
+    if [ $REMOVE_CMAKECACHE -eq 1 ]; then
+        rm -f CMakeCache.txt
+    fi
     echo ${CMAKE} \
 	-DCMAKE_BUILD_TYPE=$local_build_type \
 	-DCMAKE_EXE_LINKER_FLAGS_$local_build_type=\"${LDFLAGS}\" \
@@ -672,6 +679,10 @@ install_ros_ws_package()
     fi
 
     # Configure the package
+    if [ $REMOVE_CMAKECACHE -eq 1 ]; then
+        rm -f CMakeCache.txt
+    fi
+
     echo ${CMAKE} \
 	-DCMAKE_BUILD_TYPE=$local_build_type \
 	-DCMAKE_EXE_LINKER_FLAGS_$local_build_type=\"${LDFLAGS}\" \
