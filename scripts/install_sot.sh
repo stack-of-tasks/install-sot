@@ -713,6 +713,10 @@ update_ros_setup()
 
 
 # Setup environment variables.
+if [ "$GRX_FOUND" == "openhrp-3.1.0" ]; then
+  export PKG_CONFIG_PATH="/opt/grx/lib/pkgconfig/":$PKG_CONFIG_PATH
+fi 
+
 export PKG_CONFIG_PATH="${INSTALL_DIR}/lib/pkgconfig":$PKG_CONFIG_PATH
 
 # check the multiarch extension, only available for dpkg-architecture > 1.16.0
