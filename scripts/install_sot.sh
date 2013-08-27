@@ -201,7 +201,7 @@ create_local_db()
   let "index= $index + 1"
 
   if [ "${IDH_PRIVATE_URI}" != "" ]; then
-    inst_array[index]="install_pkg $SRC_DIR/robots hrp4_sot.git ${IDH_PRIVATE_URI}"
+    inst_array[index]="install_pkg $SRC_DIR/robots hrp4_sot ${IDH_PRIVATE_URI}"
     let "index= $index + 1"
   fi
 
@@ -285,14 +285,14 @@ create_local_db()
   inst_array[index]="install_ros_ws_package romeo_description"
   let "index= $index + 1"
 
-  inst_array[index]="install_pkg $SRC_DIR/robots sot-romeo.git ${JRL_URI}"
+  inst_array[index]="install_pkg $SRC_DIR/sot sot-romeo.git ${JRL_URI}"
   let "index= $index + 1"
 
   if [ "${IDH_PRIVATE_URI}" != "" ]; then
     inst_array[index]="install_ros_ws_package hrp4_description"
     let "index= $index + 1"
 
-    inst_array[index]="install_pkg $SRC_DIR/robots sot-hrp4.git ${IDH_PRIVATE_URI}"
+    inst_array[index]="install_pkg $SRC_DIR/sot sot-hrp4 ${IDH_PRIVATE_URI}"
     let "index= $index + 1"
   fi
 
