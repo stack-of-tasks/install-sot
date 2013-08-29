@@ -167,7 +167,8 @@ else
   STACK_OF_TASKS_URI=git://github.com/stack-of-tasks
 fi
 
-IDH_PRIVATE_URI= 
+# Uncomment only if you have an account on this server.
+IDH_PRIVATE_URI= #idh.lirmm.fr
 
 
 
