@@ -77,7 +77,7 @@ ARG_DETECT_GRX=1
 DISPLAY_LIST_INSTRUCTIONS=0
 
 # Deal with options
-while getopts ":cghlmur" option; do
+while getopts ":cghlmur:" option; do
   case "$option" in
     g)  ARG_DETECT_GRX=0
         ;;
