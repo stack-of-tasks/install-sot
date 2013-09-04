@@ -1,7 +1,7 @@
 #! /bin/bash
 # Olivier Stasse, LAAS/CNRS, Copyright 2013
 # Thomas Moulard, LAAS/CNRS, Copyright 2011, 2012, 2013
-# 
+#
 # Please set these values before running the script!
 # We recommend something like:
 #   SRC_DIR=$HOME/devel/ros/src
@@ -17,7 +17,7 @@ usage_message()
   echo "    ros_install_path=$HOME/devel/$ros_subdir"
   echo "    The git repositories are cloned in ros_install_path/src and"
   echo "    installed in ros_install_path/install."
-  echo "" 
+  echo ""
   echo "  installation_level: Specifies at which step the script should start"
   echo "    the installation."
   echo ""
@@ -26,7 +26,7 @@ usage_message()
   echo "   -r ros_release : Specifies the ros release to use."
   echo "   -l : Display the steps where the script can be started for installing."
   echo "        This also display the internal instructions run by the script."
-  echo "        To use -l you HAVE TO specify ros_install_path and installation_level." 
+  echo "        To use -l you HAVE TO specify ros_install_path and installation_level."
   echo "        With -l the instructions are displayed but not run."
   echo "   -g : OpenHRP 3.0.7 has a priority than OpenHRP 3.1.0. Default is the reverse. "
   echo "   -m : Compile the sources without updating them "
@@ -47,7 +47,7 @@ detect_grx()
     if (( priorityvar1 > 0 )); then
       if [ -d /opt/grx3.0 ]; then
         GRX_FOUND="openhrp-3.0.7"
-      fi  
+      fi
       # OpenHRP 3.1.0 takes over OpenHRP 3.0.7
       if [ -d /opt/grx ]; then
         GRX_FOUND="openhrp-3.1.0"
@@ -59,7 +59,7 @@ detect_grx()
       # OpenHRP 3.0.7 takes over OpenHRP 3.1.0
       if [ -d /opt/grx3.0 ]; then
         GRX_FOUND="openhrp-3.0.7"
-      fi  
+      fi
     fi
 
     echo "GRX_FOUND is ${GRX_FOUND}"
@@ -69,7 +69,7 @@ REMOVE_CMAKECACHE=0     # 1 to rm CMakeCache.txt
 UPDATE_PACKAGE=1        # 1 to run the update the packages, 0 otherwise
 COMPILE_PACKAGE=1       # 1 to compile the packages, 0 otherwise
 
-. /etc/lsb-release 
+. /etc/lsb-release
 echo "Distribution is $DISTRIB_CODENAME"
 
 set -e
@@ -81,9 +81,9 @@ while getopts ":cghlmur:" option; do
   case "$option" in
     g)  ARG_DETECT_GRX=0
         ;;
-    h)  # it's always useful to provide some help 
+    h)  # it's always useful to provide some help
         usage_message
-        exit 0 
+        exit 0
         ;;
     l)  DISPLAY_LIST_INSTRUCTIONS=1
         ;;
@@ -99,27 +99,27 @@ while getopts ":cghlmur:" option; do
         ;;
     r)  ROS_VERSION=$OPTARG
         ;;
-    :)  echo "Error: -$option requires an argument" 
+    :)  echo "Error: -$option requires an argument"
         usage_message
         exit 1
         ;;
-    ?)  echo "Error: unknown option -$option" 
+    ?)  echo "Error: unknown option -$option"
         usage_message
         exit 1
         ;;
   esac
-done    
+done
 shift $(($OPTIND-1))
 
 if [ "$ROS_VERSION" == "" ]; then
   ROS_VERSION=electric # ROS VERSION by default electric
 fi
 echo "ROS_VERSION is $ROS_VERSION"
- 
+
 ## Environment variables
 
 # Setup ROS variables
-if [ ! -d /opt/ros/$ROS_VERSION ]; then 
+if [ ! -d /opt/ros/$ROS_VERSION ]; then
     echo "ROS_VERSION $ROS_VERSION does not appear to be installed"
     exit 1
 fi
@@ -156,9 +156,9 @@ if [ "${LAAS_USER_ACCOUNT}" == "" ]; then
   # If you do not have a GitHub account (read-only):
   INRIA_URI=https://gforge.inria.fr/git/romeo-sot
   JRL_URI=git://github.com/jrl-umi3218
-  LAAS_URI=git://github.com/laas 
+  LAAS_URI=git://github.com/laas
   STACK_OF_TASKS_URI=git://github.com/stack-of-tasks
-else 
+else
   # Git URLs
   INRIA_URI=https://gforge.inria.fr/git/romeo-sot
   JRL_URI=git@github.com:jrl-umi3218
@@ -185,7 +185,7 @@ create_local_db()
   fi
 
   index=0;
-  
+
   inst_array[index]="install_git"
   let "index= $index +1"
 
@@ -194,7 +194,7 @@ create_local_db()
 
   inst_array[index]="install_ros_legacy"
   let "index= $index +1"
-  
+
   inst_array[index]="install_ros_ws"
   let "index= $index +1"
 
@@ -224,7 +224,7 @@ create_local_db()
   inst_array[index]="install_pkg $SRC_DIR/jrl jrl-dynamics ${JRL_URI}"
   let "index= $index + 1"
 
-  if [ "${LAAS_PRIVATE_URI}" != "" ]; then 
+  if [ "${LAAS_PRIVATE_URI}" != "" ]; then
     inst_array[index]="install_pkg $SRC_DIR/robots hrp2_14 ${LAAS_PRIVATE_URI}"
     let "index= $index + 1"
 
@@ -241,10 +241,10 @@ create_local_db()
   inst_array[index]="install_pkg $SRC_DIR/jrl jrl-walkgen ${JRL_URI}"
   let "index= $index + 1"
 
-  inst_array[index]="install_pkg $SRC_DIR/sot dynamic-graph ${JRL_URI}"
+  inst_array[index]="install_pkg $SRC_DIR/sot dynamic-graph ${STACK_OF_TASKS_URI}"
   let "index= $index + 1"
 
-  inst_array[index]="install_pkg $SRC_DIR/sot dynamic-graph-python ${JRL_URI}"
+  inst_array[index]="install_pkg $SRC_DIR/sot dynamic-graph-python ${STACK_OF_TASKS_URI}"
   let "index= $index + 1"
 
   inst_array[index]="install_pkg $SRC_DIR/laas hpp-util ${LAAS_URI}"
@@ -253,28 +253,28 @@ create_local_db()
   inst_array[index]="install_pkg $SRC_DIR/laas hpp-template-corba ${LAAS_URI}"
   let "index= $index + 1"
 
-  inst_array[index]="install_pkg $SRC_DIR/sot sot-core ${JRL_URI}"
+  inst_array[index]="install_pkg $SRC_DIR/sot sot-core ${STACK_OF_TASKS_URI}"
   let "index= $index + 1"
 
   inst_array[index]="install_pkg $SRC_DIR/sot dynamic-graph-corba ${LAAS_URI}"
   let "index= $index + 1"
 
-  inst_array[index]="install_pkg $SRC_DIR/sot sot-tools ${LAAS_URI}"
+  inst_array[index]="install_pkg $SRC_DIR/sot sot-tools ${STACK_OF_TASKS_URI}"
   let "index= $index + 1"
 
-  inst_array[index]="install_pkg $SRC_DIR/sot sot-dynamic ${JRL_URI}"
+  inst_array[index]="install_pkg $SRC_DIR/sot sot-dynamic ${STACK_OF_TASKS_URI}"
   let "index= $index + 1"
 
-  inst_array[index]="install_pkg $SRC_DIR/sot soth ${LAAS_URI}"
+  inst_array[index]="install_pkg $SRC_DIR/sot soth ${STACK_OF_TASKS_URI}"
   let "index= $index + 1"
 
-  inst_array[index]="install_pkg $SRC_DIR/sot sot-dyninv ${LAAS_URI}"
+  inst_array[index]="install_pkg $SRC_DIR/sot sot-dyninv ${STACK_OF_TASKS_URI}"
   let "index= $index + 1"
 
   inst_array[index]="install_pkg $SRC_DIR/sot sot-application ${STACK_OF_TASKS_URI}"
   let "index= $index + 1"
 
-  inst_array[index]="install_pkg $SRC_DIR/sot sot-pattern-generator ${JRL_URI} topic/python"
+  inst_array[index]="install_pkg $SRC_DIR/sot sot-pattern-generator ${STACK_OF_TASKS_URI} topic/python"
   let "index= $index + 1"
 
   inst_array[index]="install_ros_ws_package jrl_dynamics_urdf"
@@ -286,7 +286,7 @@ create_local_db()
   inst_array[index]="install_ros_ws_package romeo_description"
   let "index= $index + 1"
 
-  inst_array[index]="install_pkg $SRC_DIR/sot sot-romeo.git ${JRL_URI}"
+  inst_array[index]="install_pkg $SRC_DIR/sot sot-romeo.git ${STACK_OF_TASKS_URI}"
   let "index= $index + 1"
 
   if [ "${IDH_PRIVATE_URI}" != "" ]; then
@@ -298,20 +298,20 @@ create_local_db()
   fi
 
   if [ "${LAAS_PRIVATE_URI}" != "" ]; then
-    inst_array[index]="install_pkg $SRC_DIR/sot sot-hrp2 ${LAAS_URI}"
+    inst_array[index]="install_pkg $SRC_DIR/sot sot-hrp2 ${STACK_OF_TASKS_URI}"
     let "index= $index + 1"
   fi
 
   if [ "${LAAS_PRIVATE_URI}" != "" ] || [ "${IDH_PRIVATE_URI}" != "" ]; then
     if [ "$GRX_FOUND" == "openhrp-3.0.7" ]; then
-      
+
       inst_array[index]="install_ros_ws_package openhrp_bridge"
       let "index= $index + 1"
 
       inst_array[index]="install_ros_ws_package openhrp_bridge_msgs"
       let "index= $index + 1"
 
-      inst_array[index]="install_pkg $SRC_DIR/sot sot-hrp2-hrpsys ${LAAS_URI}"
+      inst_array[index]="install_pkg $SRC_DIR/sot sot-hrp2-hrpsys ${STACK_OF_TASKS_URI}"
       let "index= $index + 1"
     fi
 
@@ -319,11 +319,11 @@ create_local_db()
       inst_array[index]="install_pkg $SRC_DIR/sot sot-hrprtc-hrp2 ${STACK_OF_TASKS_URI}"
       let "index= $index + 1"
     fi
-    
+
   fi
 
   for ((lindex=0; lindex<${#inst_array[@]} ; lindex++ ))
-  do 
+  do
       echo ${inst_array[$lindex]} >> $local_db_file
   done
 
@@ -332,7 +332,7 @@ create_local_db()
 display_list_instructions()
 {
   for ((lindex=0; lindex<${#inst_array[@]} ; lindex++ ))
-  do 
+  do
       echo "$lindex - ${inst_array[$lindex]}"
   done
 }
@@ -702,12 +702,12 @@ install_ros_ws_package()
   	  ${MAKE} install
 	fi
 
-}    
+}
 
 update_ros_setup()
 {
   echo "update ros setup"
-  if [ -f $SOT_ROOT_DIR/setup.bash ]; then 
+  if [ -f $SOT_ROOT_DIR/setup.bash ]; then
     source $SOT_ROOT_DIR/setup.bash
   fi
 }
@@ -716,7 +716,7 @@ update_ros_setup()
 # Setup environment variables.
 if [ "$GRX_FOUND" == "openhrp-3.1.0" ]; then
   export PKG_CONFIG_PATH="/opt/grx/lib/pkgconfig/":$PKG_CONFIG_PATH
-fi 
+fi
 
 export PKG_CONFIG_PATH="${INSTALL_DIR}/lib/pkgconfig":$PKG_CONFIG_PATH
 
@@ -735,7 +735,7 @@ run_instructions()
 {
   echo "run instructions from $install_level to ${#inst_array[@]}"
   for ((lindex=$install_level; lindex<${#inst_array[@]} ; lindex++ ))
-  do 
+  do
       echo
       if [ $lindex -ge 0 ]; then
         update_ros_setup
