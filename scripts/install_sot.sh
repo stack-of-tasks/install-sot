@@ -163,7 +163,7 @@ else
   INRIA_URI=https://gforge.inria.fr/git/romeo-sot
   JRL_URI=git@github.com:jrl-umi3218
   LAAS_URI=git@github.com:laas
-  LAAS_PRIVATE_URI=ssh://${LAAS_USER_ACCOUNT}@softs.laas.fr/git/jrl
+  PRIVATE_URI=git@github.com:thomas-moulard
   STACK_OF_TASKS_URI=git://github.com/stack-of-tasks
 fi
 
@@ -206,7 +206,7 @@ create_local_db()
     let "index= $index + 1"
   fi
 
-  if [ "${LAAS_PRIVATE_URI}" != "" ]; then
+  if [ "${PRIVATE_URI}" != "" ]; then
     inst_array[index]="install_ros_ws_package hrp2_14_description"
     let "index= $index + 1"
   fi
@@ -224,17 +224,17 @@ create_local_db()
   inst_array[index]="install_pkg $SRC_DIR/jrl jrl-dynamics ${JRL_URI}"
   let "index= $index + 1"
 
-  if [ "${LAAS_PRIVATE_URI}" != "" ]; then
-    inst_array[index]="install_pkg $SRC_DIR/robots hrp2_14 ${LAAS_PRIVATE_URI}"
+  if [ "${PRIVATE_URI}" != "" ]; then
+    inst_array[index]="install_pkg $SRC_DIR/robots hrp2-14 ${PRIVATE_URI}"
     let "index= $index + 1"
 
-    inst_array[index]="install_pkg $SRC_DIR/robots hrp2Dynamics ${LAAS_PRIVATE_URI}"
+    inst_array[index]="install_pkg $SRC_DIR/robots hrp2-dynamics ${PRIVATE_URI}"
     let "index= $index + 1"
 
-    inst_array[index]="install_pkg $SRC_DIR/robots hrp2_10 ${LAAS_PRIVATE_URI}"
+    inst_array[index]="install_pkg $SRC_DIR/robots hrp2-10 ${PRIVATE_URI}"
     let "index= $index + 1"
 
-    inst_array[index]="install_pkg $SRC_DIR/robots hrp2-10-optimized ${LAAS_PRIVATE_URI}/robots"
+    inst_array[index]="install_pkg $SRC_DIR/robots hrp2-10-optimized ${PRIVATE_URI}"
     let "index= $index + 1"
   fi
 
@@ -297,12 +297,12 @@ create_local_db()
     let "index= $index + 1"
   fi
 
-  if [ "${LAAS_PRIVATE_URI}" != "" ]; then
+  if [ "${PRIVATE_URI}" != "" ]; then
     inst_array[index]="install_pkg $SRC_DIR/sot sot-hrp2 ${STACK_OF_TASKS_URI}"
     let "index= $index + 1"
   fi
 
-  if [ "${LAAS_PRIVATE_URI}" != "" ] || [ "${IDH_PRIVATE_URI}" != "" ]; then
+  if [ "${PRIVATE_URI}" != "" ] || [ "${IDH_PRIVATE_URI}" != "" ]; then
     if [ "$GRX_FOUND" == "openhrp-3.0.7" ]; then
 
       inst_array[index]="install_ros_ws_package openhrp_bridge"
@@ -641,7 +641,7 @@ install_ros_ws()
     fi
 
     rosinstall $SOT_ROOT_DIR https://raw.github.com/laas/ros/$gh_ros_sub_dir/laas.rosinstall /opt/ros/$ROS_VERSION
-    if [ "${LAAS_PRIVATE_URI}" != "" ]; then
+    if [ "${PRIVATE_URI}" != "" ]; then
       rosinstall $SOT_ROOT_DIR https://raw.github.com/laas/ros/$gh_ros_sub_dir/laas-private.rosinstall
     fi
 
