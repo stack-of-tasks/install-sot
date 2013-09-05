@@ -32,12 +32,21 @@ usage_message()
   echo "   -m : Compile the sources without updating them "
   echo "   -u : Update the sources without compiling them "
   echo ""
-  if [ "${LAAS_USER_ACCOUNT}" == "" ]; then
-    echo "If you have a laas user account you should set the environment variable"
-    echo "LAAS_USER_ACCOUNT to have read-write rights on the repositories"
-    echo "otherwise they will be uploaded with read-only rights."
+  if [ "${GITHUB_ACCOUNT}" == "" ]; then
+    echo "* If you have a github user account you should set the environment variable"
+    echo " GITHUB_ACCOUNT to have read-write rights on the repositories"
+    echo " otherwise they will be uploaded with read-only rights."
+  fi
+  if [ "${PRIVATE_URI}" == "" ]; then
+    echo "* If you have access to the private repositories for the HRP2."
+    echo " Please uncomment the line defining PRIVATE_URI."
+  fi
+  if [ "${IDH_PRIVATE_URI}" == "" ]; then
+    echo "* If you have access to the private repositories for the HRP4."
+    echo " Please uncomment the line defining IDH_PRIVATE_URI."
   fi
 }
+
 
 ## Detect if General Robotix software is present
 detect_grx()
@@ -62,7 +71,11 @@ detect_grx()
       fi
     fi
 
-    echo "GRX_FOUND is ${GRX_FOUND}"
+    if [ "${GRX_FOUND}" == "" ]; then
+      echo "OpenHRP not found"
+    else
+      echo "GRX_FOUND is ${GRX_FOUND}"
+    fi
 }
 
 REMOVE_CMAKECACHE=0     # 1 to rm CMakeCache.txt
@@ -152,25 +165,29 @@ export ROS_PACKAGE_PATH=$SOT_ROOT_DIR:$SOT_ROOT_DIR/stacks/hrp2:/opt/ros/electri
 : ${CXX_FLAGS=${CFLAGS}}
 : ${LDFLAGS="-Xlinker -export-dynamic -Wl,-O1 -Wl,-Bsymbolic-functions"}
 
-if [ "${LAAS_USER_ACCOUNT}" == "" ]; then
+
+# Uncomment only if you have an access to those 
+# PRIVATE_URI=git@github.com:thomas-moulard
+
+# Uncomment only if you have an account on this server.
+# IDH_PRIVATE_URI=git@idh.lirmm.fr:sot
+
+# Uncomment if you have a github account and writing access to the SoT repositories.
+# GITHUB_ACCOUNT="yes"
+
+if [ "${GITHUB_ACCOUNT}" == "" ]; then
   # If you do not have a GitHub account (read-only):
-  INRIA_URI=https://gforge.inria.fr/git/romeo-sot
   JRL_URI=git://github.com/jrl-umi3218
   LAAS_URI=git://github.com/laas
   STACK_OF_TASKS_URI=git://github.com/stack-of-tasks
 else
   # Git URLs
-  INRIA_URI=https://gforge.inria.fr/git/romeo-sot
   JRL_URI=git@github.com:jrl-umi3218
   LAAS_URI=git@github.com:laas
-  PRIVATE_URI=git@github.com:thomas-moulard
-  STACK_OF_TASKS_URI=git://github.com/stack-of-tasks
+  STACK_OF_TASKS_URI=git@github.com:stack-of-tasks
 fi
 
-# Uncomment only if you have an account on this server.
-IDH_PRIVATE_URI= #idh.lirmm.fr
-
-
+INRIA_URI=https://gforge.inria.fr/git/romeo-sot
 
 # HTTP protocol can also be used:
 #JRL_URI=https://${LAAS_USER_ACCOUNT}@github.com/jrl-umi3218
