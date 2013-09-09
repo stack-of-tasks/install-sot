@@ -482,10 +482,10 @@ update_pkg()
 {
     OLD_PWD=`pwd`
 
-    # Update the repo
+    # Update the remote repository reference
     if test -d "$2"; then
-	cd $2
-    	${GIT} pull
+      cd $2
+      ${GIT} fetch
     # Or make the first clone
     else
         ${GIT} ${GIT_CLONE_OPTS} clone $3/$2 $2
@@ -493,12 +493,16 @@ update_pkg()
     fi
 
     # Switch to the branch if needed
+    #  otherwise update it.
     if ! test x"$4" = x; then
        if ${GIT} branch | grep $4 ; then
-	   ${GIT} checkout $4
+          ${GIT} checkout $4
+          ${GIT} pull
        else
-	   ${GIT} checkout -b $4 origin/$4
+          ${GIT} checkout -b $4 origin/$4
        fi
+    else
+      ${GIT} pull
     fi
 
     # Configure the repository
