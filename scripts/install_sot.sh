@@ -232,7 +232,7 @@ create_local_db()
   inst_array[index]="install_pkg $SRC_DIR/jrl jrl-mathtools ${JRL_URI}"
   let "index= $index + 1"
 
-  inst_array[index]="install_pkg $SRC_DIR/jrl jrl-mal ${JRL_URI} topic/python"
+  inst_array[index]="install_pkg $SRC_DIR/jrl jrl-mal ${JRL_URI} master"
   let "index= $index + 1"
 
   inst_array[index]="install_pkg $SRC_DIR/laas abstract-robot-dynamics ${LAAS_URI}"
