@@ -1,6 +1,8 @@
 install-sot
 ===========
 
+[![Build Status](https://travis-ci.org/stack-of-tasks/install-sot.png?branch=master)](https://travis-ci.org/stack-of-tasks/install-sot)
+
 This script install automatically the Stack of Tasks and its
 dependencies.
 
