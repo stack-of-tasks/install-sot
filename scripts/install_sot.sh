@@ -153,6 +153,7 @@ export ROS_PACKAGE_PATH=$SOT_ROOT_DIR:$SOT_ROOT_DIR/stacks/hrp2:/opt/ros/electri
 : ${GIT=/usr/bin/git}
 : ${CMAKE=/usr/bin/cmake}
 : ${MAKE=/usr/bin/make}
+: ${DOXYGEN=/usr/bin/doxygen}
 
 : ${GIT_CLONE_OPTS=}
 : ${MAKE_OPTS=-k}
@@ -425,9 +426,9 @@ compare_versions ()
 install_git()
 {
     #checking whether git is already installed.
-    git --version &> /dev/null
+    ${GIT} --version &> /dev/null
     if [ $? -eq 0 ];  then
-      res=`git --version | awk ' { print $3 }'`
+      res=`${GIT} --version | awk ' { print $3 }'`
       comp=`compare_versions "$res" "1.7.4.1"`
       if [[ $comp -ge 0 ]]; then
         # 'Git already installed'
@@ -449,14 +450,18 @@ install_git()
     ./configure --prefix=${INSTALL_DIR}
     ${MAKE} ${MAKE_OPTS}
     ${MAKE} ${MAKE_OPTS} install
+
+    echo 'git installation is finished.'
+    echo ' Please do not forget to update the value of the variable GIT'
+    echo ' in install_sot.sh'
 }
 
 install_doxygen()
 {
     #checking whether doxygen is already installed.
-    doxygen --version &> /dev/null
+    ${DOXYGEN} --version &> /dev/null
     if [ $? -eq 0 ];  then
-      res=`doxygen --version | awk ' { print $1 }'`
+      res=`${DOXYGEN} --version | awk ' { print $1 }'`
       comp=`compare_versions "$res" "1.7.3"`
       if [[ $comp -ge 0 ]]; then
         # 'doxygen already installed'
@@ -478,6 +483,10 @@ install_doxygen()
     ./configure --prefix ${INSTALL_DIR}
     ${MAKE} ${MAKE_OPTS}
     ${MAKE} ${MAKE_OPTS} install
+
+    echo 'doxygen installation is finished.'
+    echo ' Please do not forget to update the value of the variable DOXYGEN'
+    echo ' in install_sot.sh'
 }
 
 update_pkg()
