@@ -20,5 +20,9 @@ export LD_LIBRARY_PATH="$install_dir/lib/`dpkg-architecture -qDEB_BUILD_MULTIARC
 export PKG_CONFIG_PATH="$install_dir/lib/pkgconfig:$PKG_CONFIG_PATH"
 export PKG_CONFIG_PATH="$install_dir/lib/`dpkg-architecture -qDEB_BUILD_MULTIARCH`/pkgconfig:$PKG_CONFIG_PATH"
 
+# Make cmake verbose.
+export CMAKE_VERBOSE_MAKEFILE=1
+export CTEST_OUTPUT_ON_FAILURE=1
+
 # Launch the script.
-$root_dir/scripts/install_sot.sh $install_dir $build_dir 0
+$root_dir/scripts/install_sot.sh $build_dir 0
