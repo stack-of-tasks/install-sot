@@ -466,6 +466,8 @@ install_doxygen()
       fi
     fi
 
+    # get the dependencies.
+    sudo apt-get install flex bison
     cd /tmp
     rm -f doxygen-1.7.3.src.tar.gz
     wget http://ftp.stack.nl/pub/users/dimitri/doxygen-1.7.3.src.tar.gz
