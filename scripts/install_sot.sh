@@ -129,25 +129,10 @@ if [ "$ROS_VERSION" == "" ]; then
 fi
 echo "ROS_VERSION is $ROS_VERSION"
 
-## Environment variables
-
-# Setup ROS variables
-if [ ! -d /opt/ros/$ROS_VERSION ]; then
-    echo "ROS_VERSION $ROS_VERSION does not appear to be installed"
-    exit 1
-fi
-
-. /opt/ros/$ROS_VERSION/setup.bash
-
 ROS_DEVEL_NAME=$1
 SOT_ROOT_DIR=$HOME/devel/$ROS_DEVEL_NAME
 SRC_DIR=$SOT_ROOT_DIR/src
 INSTALL_DIR=$SOT_ROOT_DIR/install
-
-export ROS_ROOT=/opt/ros/$ROS_VERSION/ros
-export PATH=$ROS_ROOT/bin:$PATH
-export PYTHONPATH=$ROS_ROOT/core/roslib/src:$PYTHONPATH
-export ROS_PACKAGE_PATH=$SOT_ROOT_DIR:$SOT_ROOT_DIR/stacks/hrp2:/opt/ros/electric/stacks:/opt/ros/electric/stacks/ros_realtime:$ROS_PACKAGE_PATH
 
 # Use environment variables to override these options
 : ${GIT=/usr/bin/git}
@@ -739,6 +724,13 @@ install_ros_ws_package()
 update_ros_setup()
 {
   echo "update ros setup"
+
+  # Setup ROS variables
+  if [ ! -d /opt/ros/$ROS_VERSION ]; then
+    echo "ROS_VERSION $ROS_VERSION does not appear to be installed"
+    exit 1
+  fi
+
   if [ -f $SOT_ROOT_DIR/setup.bash ]; then
     source $SOT_ROOT_DIR/setup.bash
   fi
@@ -769,7 +761,7 @@ run_instructions()
   for ((lindex=$install_level; lindex<${#inst_array[@]} ; lindex++ ))
   do
       echo
-      if [ $lindex -ge 0 ]; then
+      if [ $lindex -ge 4 ]; then
         update_ros_setup
       fi
 
