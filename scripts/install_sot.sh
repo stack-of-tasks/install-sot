@@ -423,9 +423,16 @@ compare_versions ()
 install_apt_dependencies()
 {
     ${SUDO} ${APT_GET_UPDATE}
-    ${SUDO} ${APT_GET_INSTALL} doxygen doxygen-latex libboost-all-dev \
-	libeigen3-dev liblapack-dev libblas-dev gfortran python-dev \
-	python-sphinx python-numpy
+    ${SUDO} ${APT_GET_INSTALL} \
+	build-essentials \
+	cmake pkg-config git \
+	doxygen doxygen-latex \
+	libltdl-dev liblog4cxx10-dev \
+	libboost-all-dev \
+	libeigen3-dev \
+	liblapack-dev libblas-dev gfortran \
+	python-dev python-sphinx python-numpy \
+	omniidl omniidl-python libomniorb4-dev
 }
 
 install_git()
