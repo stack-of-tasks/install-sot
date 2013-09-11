@@ -1,37 +1,165 @@
 #! /bin/bash
-# Olivier Stasse, LAAS/CNRS, Copyright 2013
-# Thomas Moulard, LAAS/CNRS, Copyright 2011, 2012, 2013
+# Olivier Stasse, Thomas Moulard, François Keith, Copyright 2011-2013
 #
-# Please set these values before running the script!
-# We recommend something like:
-#   SRC_DIR=$HOME/devel/ros/src
-#   INSTALL_DIR=$HOME/devel/ros/install
-# clean the environment
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+set -e
+
+ # ------ #
+ # README #
+ # ------ #
+
+# This script install the Stack of Tasks and all its dependencies from
+# an empty environment.
+#
+# It is targeted toward the Ubuntu Linux distribution. In particular,
+# the following releases are currently being tested:
+#
+# - Ubuntu 12.04 LTS Precise (32-bits and 64-bits)
+#
+
+
+# Override the locale.
+LC_ALL='C'
+export LC_ALL
+
+me=$0
+bme=`basename "$0"`
+
+ # ----------------------- #
+ # Customizable variables. #
+ # ----------------------- #
+
+: ${GIT=/usr/bin/git}
+: ${CMAKE=/usr/bin/cmake}
+: ${MAKE=/usr/bin/make}
+: ${DOXYGEN=/usr/bin/doxygen}
+: ${SUDO=sudo}
+
+: ${GIT_CLONE_OPTS=--quiet --recursive}
+: ${MAKE_OPTS=-k}
+
+: ${BUILD_TYPE=RELEASE}
+: ${ROBOT=HRP2LAAS}
+
+# Compilation flags
+: ${CFLAGS="-O3 -pipe -fomit-frame-pointer -ggdb3 -DNDEBUG"}
+: ${CXX_FLAGS=${CFLAGS}}
+: ${LDFLAGS="-Xlinker -export-dynamic -Wl,-O1 -Wl,-Bsymbolic-functions"}
+
+# Honour the apt_pref environment variable to allow the user to switch
+# between apt-get and aptitude if desired.
+: ${apt_pref=apt-get}
+
+: ${QUIET=-qq} #FIXME: handle quiet level properly
+APT_GET_INSTALL="$apt_pref -y $QUIET install"
+APT_GET_UPDATE="$apt_pref -y  $QUIET update"
+
+
+  # ---------------- #
+  # Helper functions #
+  # ---------------- #
+
+set_colors()
+{
+  red='[0;31m';    lred='[1;31m'
+  green='[0;32m';  lgreen='[1;32m'
+  yellow='[0;33m'; lyellow='[1;33m'
+  blue='[0;34m';   lblue='[1;34m'
+  purple='[0;35m'; lpurple='[1;35m'
+  cyan='[0;36m';   lcyan='[1;36m'
+  grey='[0;37m';   lgrey='[1;37m'
+  white='[0;38m';  lwhite='[1;38m'
+  std='[m'
+}
+
+set_nocolors()
+{
+  red=;    lred=
+  green=;  lgreen=
+  yellow=; lyellow=
+  blue=;   lblue=
+  purple=; lpurple=
+  cyan=;   lcyan=
+  grey=;   lgrey=
+  white=;  lwhite=
+  std=
+}
+
+# abort err-msg
+abort()
+{
+  echo "install_sot.sh: ${lred}abort${std}: $@" \
+  | sed '1!s/^[ 	]*/             /' >&2
+  exit 1
+}
+
+# warn msg
+warn()
+{
+  echo "install_sot.sh: ${lred}warning${std}: $@" \
+  | sed '1!s/^[ 	]*/             /' >&2
+}
+
+# notice msg
+notice()
+{
+  echo "install_sot.sh: ${lyellow}notice${std}: $@" \
+  | sed '1!s/^[ 	]*/              /' >&2
+}
+
+# yesno question
+yesno()
+{
+  printf "$@ [y/N] "
+  read answer || return 1
+  case $answer in
+    y* | Y*) return 0;;
+    *)       return 1;;
+  esac
+  return 42 # should never happen...
+}
+
+
+  # -------------------- #
+  # Actions definitions. #
+  # -------------------- #
 
 usage_message()
 {
-  echo "Usage: `basename $0` [-h] ros_subdir installation_level"
-  echo ""
-  echo "  ros_subdir: The sub directory where to install the ros workspace."
-  echo "    The script creates a variable ros_install_path from ros_subdir:"
-  echo "    ros_install_path=$HOME/devel/$ros_subdir"
-  echo "    The git repositories are cloned in ros_install_path/src and"
-  echo "    installed in ros_install_path/install."
-  echo ""
-  echo "  installation_level: Specifies at which step the script should start"
-  echo "    the installation."
-  echo ""
-  echo "Options:"
-  echo "   -h : Display help."
-  echo "   -r ros_release : Specifies the ros release to use."
-  echo "   -l : Display the steps where the script can be started for installing."
-  echo "        This also display the internal instructions run by the script."
-  echo "        To use -l you HAVE TO specify ros_install_path and installation_level."
-  echo "        With -l the instructions are displayed but not run."
-  echo "   -g : OpenHRP 3.0.7 has a priority than OpenHRP 3.1.0. Default is the reverse. "
-  echo "   -m : Compile the sources without updating them "
-  echo "   -u : Update the sources without compiling them "
-  echo ""
+    echo "Usage: $me [-h] ros_subdir installation_level
+
+  ros_subdir: The sub directory where to install the ros workspace.
+    The script creates a variable ros_install_path from ros_subdir:
+    ros_install_path=$HOME/devel/$ros_subdir
+    The git repositories are cloned in ros_install_path/src and
+    installed in ros_install_path/install.
+
+  installation_level: Specifies at which step the script should start
+    the installation.
+
+Options:
+   -h : Display help.
+   -r ros_release : Specifies the ros release to use.
+   -l : Display the steps where the script can be started for installing.
+        This also display the internal instructions run by the script.
+        To use -l you HAVE TO specify ros_install_path and installation_level.
+        With -l the instructions are displayed but not run.
+   -g : OpenHRP 3.0.7 has a priority than OpenHRP 3.1.0. Default is the reverse.
+   -m : Compile the sources without updating them
+   -u : Update the sources without compiling them
+   "
+
   if [ "${GITHUB_ACCOUNT}" == "" ]; then
     echo "* If you have a github user account you should set the environment variable"
     echo " GITHUB_ACCOUNT to have read-write rights on the repositories"
@@ -45,6 +173,11 @@ usage_message()
     echo "* If you have access to the private repositories for the HRP4."
     echo " Please uncomment the line defining IDH_PRIVATE_URI."
   fi
+
+  echo "
+Report bugs to http://github.com/stack-of-tasks/install-sot/issues
+For more information, see http://github.com/stack-of-tasks/install-sot
+"
 }
 
 
@@ -72,20 +205,33 @@ detect_grx()
     fi
 
     if [ "${GRX_FOUND}" == "" ]; then
-      echo "OpenHRP not found"
+	abort "OpenHRP not found"
     else
-      echo "GRX_FOUND is ${GRX_FOUND}"
+	notice "GRX_FOUND is ${GRX_FOUND}"
     fi
 }
+
+  # ------------------- #
+  # `main' starts here. #
+  # ------------------- #
+
+# Define colors if stdout is a tty.
+if test -t 1; then
+  set_colors
+else # stdout isn't a tty => don't print colors.
+  set_nocolors
+fi
+
+# For dev's:
+test "x$1" = x--debug && shift && set -x
 
 REMOVE_CMAKECACHE=0     # 1 to rm CMakeCache.txt
 UPDATE_PACKAGE=1        # 1 to run the update the packages, 0 otherwise
 COMPILE_PACKAGE=1       # 1 to compile the packages, 0 otherwise
 
 . /etc/lsb-release
-echo "Distribution is $DISTRIB_CODENAME"
+notice "Distribution is $DISTRIB_CODENAME"
 
-set -e
 ARG_DETECT_GRX=1
 DISPLAY_LIST_INSTRUCTIONS=0
 
@@ -112,11 +258,11 @@ while getopts ":cghlmur:" option; do
         ;;
     r)  ROS_VERSION=$OPTARG
         ;;
-    :)  echo "Error: -$option requires an argument"
+    :)  warn "Error: -$option requires an argument"
         usage_message
         exit 1
         ;;
-    ?)  echo "Error: unknown option -$option"
+    ?)  warn "Error: unknown option -$option"
         usage_message
         exit 1
         ;;
@@ -124,42 +270,16 @@ while getopts ":cghlmur:" option; do
 done
 shift $(($OPTIND-1))
 
-if [ "$ROS_VERSION" == "" ]; then
-  ROS_VERSION=electric # ROS VERSION by default electric
-fi
-echo "ROS_VERSION is $ROS_VERSION"
+
+  # --------- #
+  # variables #
+  # --------- #
+
 
 ROS_DEVEL_NAME=$1
 SOT_ROOT_DIR=$HOME/devel/$ROS_DEVEL_NAME
 SRC_DIR=$SOT_ROOT_DIR/src
 INSTALL_DIR=$SOT_ROOT_DIR/install
-
-# Use environment variables to override these options
-: ${GIT=/usr/bin/git}
-: ${CMAKE=/usr/bin/cmake}
-: ${MAKE=/usr/bin/make}
-: ${DOXYGEN=/usr/bin/doxygen}
-: ${SUDO=sudo}
-
-: ${GIT_CLONE_OPTS=--quiet --recursive}
-: ${MAKE_OPTS=-k}
-
-: ${BUILD_TYPE=RELEASE}
-: ${ROBOT=HRP2LAAS}
-
-# Compilation flags
-: ${CFLAGS="-O3 -pipe -fomit-frame-pointer -ggdb3 -DNDEBUG"}
-: ${CXX_FLAGS=${CFLAGS}}
-: ${LDFLAGS="-Xlinker -export-dynamic -Wl,-O1 -Wl,-Bsymbolic-functions"}
-
-# Honour the apt_pref environment variable to allow the user to switch
-# between apt-get and aptitude if desired.
-: ${apt_pref=apt-get}
-
-: ${QUIET=-qq} #FIXME: handle quiet level properly
-APT_GET_INSTALL="$apt_pref -y $QUIET install"
-APT_GET_UPDATE="$apt_pref -y  $QUIET update"
-
 
 # Uncomment only if you have an access to those
 # PRIVATE_URI=git@github.com:thomas-moulard
@@ -170,16 +290,22 @@ APT_GET_UPDATE="$apt_pref -y  $QUIET update"
 # Uncomment if you have a github account and writing access to the SoT repositories.
 # GITHUB_ACCOUNT="yes"
 
+if `test x${ROS_VERSION} == x`; then
+    fatal "ROS version unknown"
+fi
+
 if [ "${GITHUB_ACCOUNT}" == "" ]; then
+    notice "GitHub account not set, cloning in read-only mode"
   # If you do not have a GitHub account (read-only):
-  JRL_URI=git://github.com/jrl-umi3218
-  LAAS_URI=git://github.com/laas
-  STACK_OF_TASKS_URI=git://github.com/stack-of-tasks
+    JRL_URI=git://github.com/jrl-umi3218
+    LAAS_URI=git://github.com/laas
+    STACK_OF_TASKS_URI=git://github.com/stack-of-tasks
 else
+    notice "GitHub account is set, cloning in read-write mode"
   # Git URLs
-  JRL_URI=git@github.com:jrl-umi3218
-  LAAS_URI=git@github.com:laas
-  STACK_OF_TASKS_URI=git@github.com:stack-of-tasks
+    JRL_URI=git@github.com:jrl-umi3218
+    LAAS_URI=git@github.com:laas
+    STACK_OF_TASKS_URI=git@github.com:stack-of-tasks
 fi
 
 INRIA_URI=https://gforge.inria.fr/git/romeo-sot
@@ -364,11 +490,11 @@ fi
 EXPECTED_ARGS=2
 if [ $# -ne $EXPECTED_ARGS ]
 then
-  echo "Error: Bad number of parameters " $#
+  warn "2 parameters are expected but" $# "have been passed"
   usage_message
   exit $E_BADARGS
 else
-  echo "Parameters found:" $1 $2
+  notice "Parameters found:" $1 $2
 fi
 
 install_level=$2
@@ -381,14 +507,12 @@ fi
 ################
 # Installation #
 ################
-set -e
-if test x"$SRC_DIR" = x; then
-    echo "Please set the source dir"
-    exit 1
+
+if `test x"$SRC_DIR" = x`; then
+    abort "Please set the source dir"
 fi
-if test x"$INSTALL_DIR" = x; then
-    echo "Please set the install dir"
-    exit 1
+if `test x"$INSTALL_DIR" = x`; then
+    abort "Please set the install dir"
 fi
 
 mkdir -p                \
