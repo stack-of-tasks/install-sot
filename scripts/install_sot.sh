@@ -205,7 +205,7 @@ detect_grx()
     fi
 
     if [ "${GRX_FOUND}" == "" ]; then
-	abort "OpenHRP not found"
+	warn "OpenHRP not found"
     else
 	notice "GRX_FOUND is ${GRX_FOUND}"
     fi
