@@ -511,7 +511,7 @@ update_pkg()
       ${GIT} fetch
     # Or make the first clone
     else
-        ${GIT} ${GIT_CLONE_OPTS} clone $3/$2 $2
+        ${GIT} clone ${GIT_CLONE_OPTS} $3/$2 $2
         cd $2
     fi
 
@@ -598,7 +598,7 @@ install_python_pkg()
 	cd "$2"
 	${GIT} pull
     else
-	${GIT} ${GIT_CLONE_OPTS} clone "$3/$2"
+	${GIT} clone ${GIT_CLONE_OPTS} "$3/$2"
 	cd "$2"
     fi
     if ! test x"$4" = x; then
