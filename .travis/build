@@ -25,4 +25,4 @@ export CMAKE_VERBOSE_MAKEFILE=1
 export CTEST_OUTPUT_ON_FAILURE=1
 
 # Launch the script.
-$root_dir/scripts/install_sot.sh $build_dir 0
+$root_dir/scripts/install_sot.sh -r hydro $build_dir 0
