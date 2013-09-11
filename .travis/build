@@ -22,4 +22,8 @@ export PKG_CONFIG_PATH="$install_dir/lib/`dpkg-architecture -qDEB_BUILD_MULTIARC
 
 # Launch the script.
 export MAKE_OPTS=--quiet
+
+export VERBOSE=0
+export CMAKE_VERBOSE_MAKEFILE=0
+
 $root_dir/scripts/install_sot.sh -r hydro $build_dir 0
