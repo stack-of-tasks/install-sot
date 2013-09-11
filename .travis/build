@@ -21,5 +21,6 @@ export PKG_CONFIG_PATH="$install_dir/lib/pkgconfig:$PKG_CONFIG_PATH"
 export PKG_CONFIG_PATH="$install_dir/lib/`dpkg-architecture -qDEB_BUILD_MULTIARCH`/pkgconfig:$PKG_CONFIG_PATH"
 
 # Launch the script.
-$root_dir/scripts/install_sot.sh -r hydro $build_dir 10 2>&1 > $build_dir/install.log \
+($root_dir/scripts/install_sot.sh -r hydro $build_dir 0 2>&1) \
+    > $build_dir/install.log \
     || (tail -c 3000 $build_dir/install.log && false)
