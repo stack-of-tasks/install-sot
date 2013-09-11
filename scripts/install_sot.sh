@@ -141,7 +141,7 @@ INSTALL_DIR=$SOT_ROOT_DIR/install
 : ${DOXYGEN=/usr/bin/doxygen}
 : ${SUDO=sudo}
 
-: ${GIT_CLONE_OPTS=}
+: ${GIT_CLONE_OPTS=--quiet --recursive}
 : ${MAKE_OPTS=-k}
 
 : ${BUILD_TYPE=RELEASE}
