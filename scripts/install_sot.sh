@@ -591,11 +591,13 @@ install_ros_legacy()
     sudo chmod 644 /etc/apt/sources.list.d/ros-latest.list
     wget http://packages.ros.org/ros.key -O - | sudo apt-key add -
     sudo apt-get update
+    sudo apt-get install python-setuptools python-pip
+    sudo apt-get install python-rosdep python-rosinstall python-rosinstall-generator python-wstool
+    sudo rosdep init || true 2> /dev/null > /dev/null # Will fail if rosdep init has been already run.
+    rosdep update
+
     sudo apt-get install ros-$ROS_VERSION-desktop-full
     sudo apt-get install ros-$ROS_VERSION-pr2-mechanism      # for realtime_tools
-    sudo apt-get install ros-$ROS_VERSION-documentation
-    sudo apt-get install python-setuptools python-pip
-    sudo apt-get install python-rosinstall
 
     if [ "$ROS_VERSION" == "fuerte" ]; then
       sudo apt-get install ros-fuerte-robot-model
