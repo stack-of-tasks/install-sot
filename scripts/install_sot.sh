@@ -152,7 +152,7 @@ INSTALL_DIR=$SOT_ROOT_DIR/install
 : ${LDFLAGS="-Xlinker -export-dynamic -Wl,-O1 -Wl,-Bsymbolic-functions"}
 
 
-# Uncomment only if you have an access to those 
+# Uncomment only if you have an access to those
 # PRIVATE_URI=git@github.com:thomas-moulard
 
 # Uncomment only if you have an account on this server.
@@ -590,6 +590,7 @@ install_ros_legacy()
     sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu '$DISTRIB_CODENAME' main" > /etc/apt/sources.list.d/ros-latest.list'
     sudo chmod 644 /etc/apt/sources.list.d/ros-latest.list
     wget http://packages.ros.org/ros.key -O - | sudo apt-key add -
+    sudo apt-get update
     sudo apt-get install ros-$ROS_VERSION-desktop-full
     sudo apt-get install ros-$ROS_VERSION-pr2-mechanism      # for realtime_tools
     sudo apt-get install ros-$ROS_VERSION-documentation
