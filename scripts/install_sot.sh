@@ -424,7 +424,7 @@ install_apt_dependencies()
 {
     ${SUDO} ${APT_GET_UPDATE}
     ${SUDO} ${APT_GET_INSTALL} \
-	build-essentials \
+	build-essential \
 	cmake pkg-config git \
 	doxygen doxygen-latex \
 	libltdl-dev liblog4cxx10-dev \
