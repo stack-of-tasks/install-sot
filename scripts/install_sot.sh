@@ -139,6 +139,7 @@ INSTALL_DIR=$SOT_ROOT_DIR/install
 : ${CMAKE=/usr/bin/cmake}
 : ${MAKE=/usr/bin/make}
 : ${DOXYGEN=/usr/bin/doxygen}
+: ${SUDO=sudo}
 
 : ${GIT_CLONE_OPTS=}
 : ${MAKE_OPTS=-k}
@@ -150,6 +151,14 @@ INSTALL_DIR=$SOT_ROOT_DIR/install
 : ${CFLAGS="-O3 -pipe -fomit-frame-pointer -ggdb3 -DNDEBUG"}
 : ${CXX_FLAGS=${CFLAGS}}
 : ${LDFLAGS="-Xlinker -export-dynamic -Wl,-O1 -Wl,-Bsymbolic-functions"}
+
+# Honour the apt_pref environment variable to allow the user to switch
+# between apt-get and aptitude if desired.
+: ${apt_pref=apt-get}
+
+: ${QUIET=-qq} #FIXME: handle quiet level properly
+APT_GET_INSTALL="$apt_pref -y $QUIET install"
+APT_GET_UPDATE="$apt_pref -y  $QUIET update"
 
 
 # Uncomment only if you have an access to those
@@ -188,6 +197,9 @@ create_local_db()
   fi
 
   index=0;
+
+  inst_array[index]="install_apt_dependencies"
+  let "index= $index +1"
 
   inst_array[index]="install_git"
   let "index= $index +1"
@@ -408,6 +420,14 @@ compare_versions ()
   echo '0'
 }
 
+install_apt_dependencies()
+{
+    ${SUDO} ${APT_GET_UPDATE}
+    ${SUDO} ${APT_GET_INSTALL} doxygen doxygen-latex libboost-all-dev \
+	libeigen3-dev liblapack-dev libblas-dev gfortran python-dev \
+	python-sphinx python-numpy
+}
+
 install_git()
 {
     #checking whether git is already installed.
@@ -457,7 +477,7 @@ install_doxygen()
     fi
 
     # get the dependencies.
-    sudo apt-get install flex bison
+    ${SUDO} ${APT_GET_INSTALL} flex bison
     cd /tmp
     rm -f doxygen-1.7.3.src.tar.gz
     wget http://ftp.stack.nl/pub/users/dimitri/doxygen-1.7.3.src.tar.gz
@@ -587,21 +607,21 @@ install_python_pkg()
 
 install_ros_legacy()
 {
-    sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu '$DISTRIB_CODENAME' main" > /etc/apt/sources.list.d/ros-latest.list'
-    sudo chmod 644 /etc/apt/sources.list.d/ros-latest.list
-    wget http://packages.ros.org/ros.key -O - | sudo apt-key add -
-    sudo apt-get update
-    sudo apt-get install python-setuptools python-pip
-    sudo apt-get install python-rosdep python-rosinstall python-rosinstall-generator python-wstool
-    sudo rosdep init || true 2> /dev/null > /dev/null # Will fail if rosdep init has been already run.
+    ${SUDO} sh -c 'echo "deb http://packages.ros.org/ros/ubuntu '$DISTRIB_CODENAME' main" > /etc/apt/sources.list.d/ros-latest.list'
+    ${SUDO} chmod 644 /etc/apt/sources.list.d/ros-latest.list
+    wget http://packages.ros.org/ros.key -O - | ${SUDO} apt-key add -
+    ${SUDO} ${APT_GET_UPDATE}
+    ${SUDO} ${APT_GET_INSTALL} python-setuptools python-pip
+    ${SUDO} ${APT_GET_INSTALL} python-rosdep python-rosinstall python-rosinstall-generator python-wstool
+    ${SUDO} rosdep init || true 2> /dev/null > /dev/null # Will fail if rosdep init has been already run.
     rosdep update
 
-    sudo apt-get install ros-$ROS_VERSION-desktop-full
-    sudo apt-get install ros-$ROS_VERSION-pr2-mechanism      # for realtime_tools
+    ${SUDO} ${APT_GET_INSTALL} ros-$ROS_VERSION-desktop-full
+    ${SUDO} ${APT_GET_INSTALL} ros-$ROS_VERSION-pr2-mechanism      # for realtime_tools
 
     if [ "$ROS_VERSION" == "fuerte" ]; then
-      sudo apt-get install ros-fuerte-robot-model
-      sudo apt-get install ros-fuerte-pr2-mechanism
+      ${SUDO} ${APT_GET_INSTALL} ros-fuerte-robot-model
+      ${SUDO} ${APT_GET_INSTALL} ros-fuerte-pr2-mechanism
     fi
 }
 
