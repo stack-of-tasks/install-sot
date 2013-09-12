@@ -291,7 +291,7 @@ INSTALL_DIR=$SOT_ROOT_DIR/install
 # GITHUB_ACCOUNT="yes"
 
 if `test x${ROS_VERSION} == x`; then
-    fatal "ROS version unknown"
+    abort "ROS version unknown"
 fi
 
 if [ "${GITHUB_ACCOUNT}" == "" ]; then
