@@ -348,6 +348,8 @@ create_local_db()
   fi
 
   if [ "${PRIVATE_URI}" != "" ]; then
+    inst_array[index]="install_ros_ws_package urdf_parser_py"
+      let "index= $index + 1"
     inst_array[index]="install_ros_ws_package hrp2_14_description"
     let "index= $index + 1"
   fi
