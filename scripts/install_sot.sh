@@ -806,13 +806,12 @@ install_config()
 # install all ros stack required
 install_ros_ws()
 {
-    # Current groovy and hydro are considered likewise.
+    # The master branch is for the current ROS development release
+    # (Hydro). All the oldest releases are named by their release name:
+    # fuerte, groovy, etc.
     gh_ros_sub_dir=master
-    if [ "$ROS_VERSION" == "electric" ]; then
-        gh_ros_sub_dir=topic/electric
-    fi
-    if [ "$ROS_VERSION" == "fuerte" ]; then
-        gh_ros_sub_dir=topic/fuerte
+    if `! test x$ROS_VERSION == xhydro`; then
+	gh_ros_sub_dir=$ROS_VERSION
     fi
 
     rosinstall $SOT_ROOT_DIR https://raw.github.com/laas/ros/$gh_ros_sub_dir/laas.rosinstall /opt/ros/$ROS_VERSION
