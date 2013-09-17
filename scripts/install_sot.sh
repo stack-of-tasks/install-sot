@@ -758,6 +758,10 @@ install_ros_legacy()
       ${SUDO} ${APT_GET_INSTALL} ros-fuerte-robot-model
       ${SUDO} ${APT_GET_INSTALL} ros-fuerte-pr2-mechanism
     fi
+
+   if [ "$ROS_VERSION" == "hydro" ]; then
+      ${SUDO} ${APT_GET_INSTALL} ros-hydro-robot-state-publisher
+    fi
 }
 
 
