@@ -16,22 +16,22 @@ To start the installation, you should:
  1. Call:
 
 ```sh
-install_sot.sh ros-unstable level_to_start
+install_sot.sh ros_subdir installation_level
 ```
 
 If ROS is installed, as well as Git and Doxygen, you can start with
-`level_to_start=3`.
+`installation_level=3`.
 
-Otherwise you can set `level_to_start` to 0 to install the required
+Otherwise you can set `install_level` to 0 to install the required
 dependencies.
 
-This will install a ROS workspace in `$HOME/devel/ros-unstable/`.
+This will install a ROS workspace in `$HOME/devel/ros_subdir/`.
 
-The stacks will be installed in `$HOME/devel/ros-unstable/stacks`.
+The stacks will be installed in `$HOME/devel/ros_subdir/stacks`.
 
-The repositories will be cloned in: `$HOME/devel/ros-unstable/src`
+The repositories will be cloned in: `$HOME/devel/ros_subdir/src`
 
-The installation will then done in: `$HOME/devel/ros-unstable/install`
+The installation will then done in: `$HOME/devel/ros_subdir/install`
 
 Usage
 -----
@@ -48,21 +48,31 @@ Usage: `basename $0` [-h] ros_subdir installation_level
       the installation.
 
   Options:
-     -h : Display help
-     -l : Display the steps where the script can be started for installing.
-          This also display the internal instructions run by the script.
-          To use -l you HAVE TO specify ros_install_path and installation_level.
-          With -l the instructions are displayed but not run.
-     -g : OpenHRP 3.0.7 has a priority than OpenHRP 3.1.0. Default is the reverse.
-     -m : Compile the sources without updating them
-     -u : Update the sources without compiling them
+   -h : Display help.
+   -r ros_release : Specifies the ros release to use.
+   -l : Display the steps where the script can be started for installing.
+        This also display the internal instructions run by the script.
+        To use -l you HAVE TO specify ros_install_path and installation_level.
+        With -l the instructions are displayed but not run.
+   -g : OpenHRP 3.0.7 has a priority than OpenHRP 3.1.0. Default is the reverse.
+   -m : Compile the sources without updating them
+   -u : Update the sources without compiling them
+   
+  Environment variables:
+   GITHUB_ACCOUNT: If you  have a github user account you should set the environment variable
+                   GITHUB_ACCOUNT to have read-write rights on the repositories 
+                   otherwise they will be uploaded with read-only rights.
+   PRIVATE_URI: If you have access to the private repositories for the HRP2.
+                Please uncomment the line defining PRIVATE_URI.
+   IDH_PRIVATE_URI: If you have access to the private repositories for the HRP4.
+                Please uncomment the line defining IDH_PRIVATE_URI.
 ```
 
 Deployment:
 -----------
 
 ```sh
-rsync -avz $HOME/devel/ros-unstable username@robotc:./devel/
+rsync -avz $HOME/devel/ros_subdir username@robotc:./devel/
 ```
 
 will copy the overall control architecture in

@@ -348,8 +348,10 @@ create_local_db()
   fi
 
   if [ "${PRIVATE_URI}" != "" ]; then
-    inst_array[index]="install_ros_ws_package urdf_parser_py"
-      let "index= $index + 1"
+    if [ "$ROS_VERSION" != "electric" ]; then
+        inst_array[index]="install_ros_ws_package urdf_parser_py"
+        let "index= $index + 1"
+    fi
     inst_array[index]="install_ros_ws_package hrp2_14_description"
     let "index= $index + 1"
   fi
@@ -778,7 +780,7 @@ install_config()
     source $SOT_ROOT_DIR/setup.bash
 
     # create the file
-    CONFIG_FILE=config.sh
+    CONFIG_FILE=config_$ROS_DEVEL_NAME.sh
     echo "#!/bin/sh"                                >  $CONFIG_FILE
     echo "source /opt/ros/$ROS_DISTRO/setup.bash"   >> $CONFIG_FILE
     echo "ROS_WS_DIR=\$HOME/devel/$ROS_DEVEL_NAME"  >> $CONFIG_FILE
@@ -804,13 +806,12 @@ install_config()
 # install all ros stack required
 install_ros_ws()
 {
-    # Current groovy and hydro are considered likewise.
+    # The master branch is for the current ROS development release
+    # (Hydro). All the oldest releases are named by their release name:
+    # fuerte, groovy, etc.
     gh_ros_sub_dir=master
-    if [ "$ROS_VERSION" == "electric" ]; then
-        gh_ros_sub_dir=topic/electric
-    fi
-    if [ "$ROS_VERSION" == "fuerte" ]; then
-        gh_ros_sub_dir=topic/fuerte
+    if `! test x$ROS_VERSION == xhydro`; then
+	gh_ros_sub_dir=$ROS_VERSION
     fi
 
     rosinstall $SOT_ROOT_DIR https://raw.github.com/laas/ros/$gh_ros_sub_dir/laas.rosinstall /opt/ros/$ROS_VERSION
