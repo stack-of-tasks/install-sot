@@ -780,7 +780,7 @@ install_config()
     source $SOT_ROOT_DIR/setup.bash
 
     # create the file
-    CONFIG_FILE=config.sh
+    CONFIG_FILE=config_$ROS_DEVEL_NAME.sh
     echo "#!/bin/sh"                                >  $CONFIG_FILE
     echo "source /opt/ros/$ROS_DISTRO/setup.bash"   >> $CONFIG_FILE
     echo "ROS_WS_DIR=\$HOME/devel/$ROS_DEVEL_NAME"  >> $CONFIG_FILE
