@@ -282,7 +282,7 @@ SRC_DIR=$SOT_ROOT_DIR/src
 INSTALL_DIR=$SOT_ROOT_DIR/install
 
 # Uncomment only if you have an access to those
-# PRIVATE_URI=git@github.com:thomas-moulard
+# PRIVATE_URI=git@github.com:jrl-umi3218
 
 # Uncomment only if you have an account on this server.
 # IDH_PRIVATE_URI=git@idh.lirmm.fr:sot
@@ -355,7 +355,6 @@ create_local_db()
     inst_array[index]="install_ros_ws_package hrp2_14_description"
     let "index= $index + 1"
   fi
-
 
   inst_array[index]="install_pkg $SRC_DIR/jrl jrl-mathtools ${JRL_URI}"
   let "index= $index + 1"
