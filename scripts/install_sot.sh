@@ -876,7 +876,7 @@ install_ros_ws_package()
 	-DCMAKE_CXX_FLAGS="$local_cflags" ..
     ${MAKE} ${MAKE_OPTS}
 
-	if [ "$1" == "dynamic_graph_bridge" ] || [ "$1" == "openhrp_bridge" ] || [ "$1" == "urdf_parser_py" ]; then
+	if [ "$1" == "dynamic_graph_bridge" ] || [ "$1" == "openhrp_bridge" ] ; then
   	  ${MAKE} install
 	fi
 
