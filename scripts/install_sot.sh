@@ -287,6 +287,9 @@ INSTALL_DIR=$SOT_ROOT_DIR/install
 # Uncomment only if you have an account on this server.
 # IDH_PRIVATE_URI=git@idh.lirmm.fr:sot
 
+# Uncomment only if you have an account on this server.
+# TRAC_LAAS_URI=trac.laas.fr
+
 # Uncomment if you have a github account and writing access to the SoT repositories.
 # GITHUB_ACCOUNT="yes"
 
@@ -815,6 +818,9 @@ install_ros_ws()
 
     rosinstall $SOT_ROOT_DIR https://raw.github.com/laas/ros/$gh_ros_sub_dir/laas.rosinstall /opt/ros/$ROS_VERSION
     if [ "${PRIVATE_URI}" != "" ]; then
+      rosinstall $SOT_ROOT_DIR https://raw.github.com/laas/ros/$gh_ros_sub_dir/jrl-umi3218-private.rosinstall
+    fi
+    if [ "${TRAC_LAAS_URI}" != "" ]; then
       rosinstall $SOT_ROOT_DIR https://raw.github.com/laas/ros/$gh_ros_sub_dir/laas-private.rosinstall
     fi
 
