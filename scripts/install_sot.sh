@@ -754,7 +754,6 @@ install_ros_legacy()
 
     if [ "$ROS_VERSION" == "fuerte" ]; then
       ${SUDO} ${APT_GET_INSTALL} ros-fuerte-robot-model
-      ${SUDO} ${APT_GET_INSTALL} ros-fuerte-pr2-mechanism
     fi
 
    if [ "$ROS_VERSION" == "hydro" ]; then
