@@ -826,7 +826,7 @@ install_ros_ws()
     if [ "${IDH_PRIVATE_URI}" != "" ]; then
       echo -e "- git:\n    uri: git@idh.lirmm.fr:mcp/ros/hrp4/hrp4_urdf.git\n" \
            "   local-name: stacks/hrp4\n    version: "${ROS_VERSION} > /tmp/idh-private.rosinstall
-      rosinstall ~/devel/$ROS_DEVEL_NAME  /tmp/idh-private.rosinstall
+      rosinstall $SOT_ROOT_DIR  /tmp/idh-private.rosinstall
     fi
 
     # create the config file.
