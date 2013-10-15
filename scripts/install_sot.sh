@@ -548,8 +548,12 @@ compare_versions ()
 
 install_apt_dependencies()
 {
-    ${SUDO} ${APT_GET_UPDATE}
-    ${SUDO} ${APT_GET_INSTALL} \
+	if [ $UPDATE_PACKAGE -eq 0 ]; then
+	  return
+	fi
+
+	${SUDO} ${APT_GET_UPDATE}
+	${SUDO} ${APT_GET_INSTALL} \
 	build-essential \
 	cmake pkg-config git \
 	doxygen doxygen-latex \
@@ -563,6 +567,10 @@ install_apt_dependencies()
 
 install_git()
 {
+    if [ $UPDATE_PACKAGE -eq 0 ]; then
+        return
+    fi
+
     #checking whether git is already installed.
     ${GIT} --version &> /dev/null
     if [ $? -eq 0 ];  then
@@ -596,6 +604,10 @@ install_git()
 
 install_doxygen()
 {
+    if [ $UPDATE_PACKAGE -eq 0 ]; then
+        return
+    fi
+
     #checking whether doxygen is already installed.
     ${DOXYGEN} --version &> /dev/null
     if [ $? -eq 0 ];  then
@@ -740,6 +752,10 @@ install_python_pkg()
 
 install_ros_legacy()
 {
+    if [ $UPDATE_PACKAGE -eq 0 ]; then
+        return
+    fi
+
     ${SUDO} sh -c 'echo "deb http://packages.ros.org/ros/ubuntu '$DISTRIB_CODENAME' main" > /etc/apt/sources.list.d/ros-latest.list'
     ${SUDO} chmod 644 /etc/apt/sources.list.d/ros-latest.list
     wget http://packages.ros.org/ros.key -O - | ${SUDO} apt-key add -
@@ -807,6 +823,10 @@ install_config()
 # install all ros stack required
 install_ros_ws()
 {
+    if [ $UPDATE_PACKAGE -eq 0 ]; then
+        return
+    fi
+
     # The master branch is for the current ROS development release
     # (Hydro). All the oldest releases are named by their release name:
     # fuerte, groovy, etc.
