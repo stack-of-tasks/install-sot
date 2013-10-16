@@ -351,6 +351,14 @@ create_local_db()
   fi
 
   if [ "${PRIVATE_URI}" != "" ]; then
+      if [ "$ROS_VERSION" == "groovy" ]; then
+	  inst_array[index]="install_ros_ws_package urdf_parser_py"
+	  let "index= $index + 1"
+	  inst_array[index]="install_ros_ws_package robot_capsule_urdf"
+	  let "index= $index + 1"
+	  inst_array[index]="install_ros_ws_package xml_reflection"
+	  let "index= $index + 1"
+      fi
     inst_array[index]="install_ros_ws_package hrp2_14_description"
     let "index= $index + 1"
   fi
@@ -785,6 +793,8 @@ install_config()
 {
     # get python site packages path
     PYTHON_SITELIB=`python -c "import sys, os; print os.sep.join(['lib', 'python' + sys.version[:3], 'site-packages'])"`
+    # get python dist packages path
+    PYTHON_DISTLIB=`python -c "import sys, os; print os.sep.join(['lib', 'python' + sys.version[:3], 'dist-packages'])"`
 
     # get dpkg version
     dpkg_version=`dpkg-architecture --version | head -n 1 | awk '{print $4}'`
@@ -807,7 +817,7 @@ install_config()
     echo "export ROBOT=\"$ROBOT\""                  >> $CONFIG_FILE
     echo "export ROS_ROOT=/opt/ros/$ROS_DISTRO"     >> $CONFIG_FILE
     echo "export PATH=\$ROS_ROOT/bin:\$PATH"        >> $CONFIG_FILE
-    echo "export PYTHONPATH=\$ROS_ROOT/core/roslib/src:\$ROS_INSTALL_DIR/$PYTHON_SITELIB:\$PYTHONPATH" >> $CONFIG_FILE
+    echo "export PYTHONPATH=\$ROS_ROOT/core/roslib/src:\$ROS_INSTALL_DIR/$PYTHON_SITELIB:\$ROS_INSTALL_DIR/$PYTHON_DISTLIB:\$PYTHONPATH" >> $CONFIG_FILE
     echo "export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/usr/local/lib/pkgconfig:/opt/grx/lib/pkgconfig"     >> $CONFIG_FILE
     echo "export ROS_PACKAGE_PATH=\$ROS_WS_DIR:\$ROS_WS_DIR/stacks/hrp2:\$ROS_WS_DIR/stacks/ethzasl_ptam:/opt/ros/${ROS_DISTRO}/stacks:/opt/ros/\${ROS_DISTRO}/stacks/ros_realtime:\$ROS_PACKAGE_PATH" >> $CONFIG_FILE
     echo "export LD_LIBRARY_PATH=\$ROS_INSTALL_DIR/lib/plugin:\$LD_LIBRARY_PATH" >> $CONFIG_FILE
@@ -817,6 +827,7 @@ install_config()
         echo "export LD_LIBRARY_PATH=\$ROS_INSTALL_DIR/lib/$arch_path:\$LD_LIBRARY_PATH" >> $CONFIG_FILE
     fi;
     echo "export ROS_MASTER_URI=http://localhost:11311" >> $CONFIG_FILE
+    source $CONFIG_FILE
 }
 
 
@@ -895,11 +906,16 @@ install_ros_ws_package()
 	-DSMALLMATRIX=jrl-mathtools -DROBOT=${ROBOT} \
 	-DCMAKE_CXX_FLAGS="$local_cflags" ..
     ${MAKE} ${MAKE_OPTS}
-
-	if [ "$1" == "dynamic_graph_bridge" ] || [ "$1" == "openhrp_bridge" ]; then
+    
+   if [ "$ROS_VERSION" == "groovy" ]; then
+    	if [ "$1" == "dynamic_graph_bridge" ] || [ "$1" == "openhrp_bridge" ] || [ "$1" == "urdf_parser_py" ] || [ "$1" == "robot_capsule_urdf" ] || [ "$1" == "xml_reflection" ]; then
   	  ${MAKE} install
 	fi
-
+   else
+    	if [ "$1" == "dynamic_graph_bridge" ] || [ "$1" == "openhrp_bridge" ] ; then
+  	  ${MAKE} install
+	fi
+   fi
 }
 
 update_ros_setup()
@@ -934,7 +950,6 @@ if [[ $comp -ge 0 ]];  then
     export PKG_CONFIG_PATH="${INSTALL_DIR}/lib/$arch_path/pkgconfig":$PKG_CONFIG_PATH
   fi;
 fi;
-
 
 run_instructions()
 {
