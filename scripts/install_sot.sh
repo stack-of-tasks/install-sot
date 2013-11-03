@@ -764,12 +764,19 @@ install_ros_legacy()
         return
     fi
 
+    python_version=`python --version 2>&1 | awk '{print $2}'`
+    comp=`compare_versions "$python_version" "2.7"`
+
     ${SUDO} sh -c 'echo "deb http://packages.ros.org/ros/ubuntu '$DISTRIB_CODENAME' main" > /etc/apt/sources.list.d/ros-latest.list'
     ${SUDO} chmod 644 /etc/apt/sources.list.d/ros-latest.list
     wget http://packages.ros.org/ros.key -O - | ${SUDO} apt-key add -
     ${SUDO} ${APT_GET_UPDATE}
     ${SUDO} ${APT_GET_INSTALL} python-setuptools python-pip
-    ${SUDO} ${APT_GET_INSTALL} python-rosdep python-rosinstall python-rosinstall-generator python-wstool
+    ${SUDO} ${APT_GET_INSTALL} python-rosdep python-rosinstall python-rosinstall-generator
+    if [ $comp -ge 0 ]; then
+        ${SUDO} ${APT_GET_INSTALL}
+        python-wstool
+    fi
     ${SUDO} rosdep init || true 2> /dev/null > /dev/null # Will fail if rosdep init has been already run.
     rosdep update
 
