@@ -43,6 +43,11 @@ The repositories will be cloned in: `$HOME/devel/ros_subdir/src`
 
 The installation will then done in: `$HOME/devel/ros_subdir/install`
 
+Be aware that if you started the install with some wrong environment variables, 
+the link to the repositories will be kept in 
+$HOME/devel/ros_subdir/.rosinstall
+Please remove this file before running again the script with your new variables.
+
 Usage
 -----
 
