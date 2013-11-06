@@ -20,7 +20,6 @@ To start the installation, you should:
  ROS_MASTER_URI=http://localhost:11311
  
  1. Set your private repositories account (optional, but VERY important):
- LAAS_ACCOUNT
  GITHUB_ACCOUNT
  PRIVATE_URI
 
