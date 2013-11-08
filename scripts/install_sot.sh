@@ -774,14 +774,17 @@ install_ros_legacy()
     ${SUDO} ${APT_GET_INSTALL} python-setuptools python-pip
     ${SUDO} ${APT_GET_INSTALL} python-rosdep python-rosinstall python-rosinstall-generator
     if [ $comp -ge 0 ]; then
-        ${SUDO} ${APT_GET_INSTALL}
-        python-wstool
+        ${SUDO} ${APT_GET_INSTALL} python-wstool
     fi
     ${SUDO} rosdep init || true 2> /dev/null > /dev/null # Will fail if rosdep init has been already run.
     rosdep update
 
     ${SUDO} ${APT_GET_INSTALL} ros-$ROS_VERSION-desktop-full
     ${SUDO} ${APT_GET_INSTALL} ros-$ROS_VERSION-pr2-mechanism      # for realtime_tools
+
+    if [ "$ROS_VERSION" == "fuerte" ] || [ "$ROS_VERSION" == "electric" ]; then
+        ${SUDO} ${APT_GET_INSTALL} ros-$ROS_VERSION-robot-model-py      # for parser urdf model in python   
+    fi 
 
     if [ "$ROS_VERSION" == "fuerte" ]; then
       ${SUDO} ${APT_GET_INSTALL} ros-fuerte-robot-model
@@ -852,11 +855,14 @@ install_ros_ws()
     if `! test x$ROS_VERSION == xhydro`; then
 	gh_ros_sub_dir=$ROS_VERSION
     fi
+    
+    echo "Version to be installed: $ROS_VERSION"
 
     rosinstall $SOT_ROOT_DIR https://raw.github.com/laas/ros/$gh_ros_sub_dir/laas.rosinstall /opt/ros/$ROS_VERSION
     if [ "${PRIVATE_URI}" != "" ]; then
       rosinstall $SOT_ROOT_DIR https://raw.github.com/laas/ros/$gh_ros_sub_dir/jrl-umi3218-private.rosinstall
     fi
+
     if [ "${TRAC_LAAS_URI}" != "" ]; then
       rosinstall $SOT_ROOT_DIR https://raw.github.com/laas/ros/$gh_ros_sub_dir/laas-private.rosinstall
     fi
