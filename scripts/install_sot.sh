@@ -154,7 +154,6 @@ Options:
         This also display the internal instructions run by the script.
         To use -l you HAVE TO specify ros_install_path and installation_level.
         With -l the instructions are displayed but not run.
-   -g : OpenHRP 3.0.7 has a priority than OpenHRP 3.1.0. Default is the reverse.
    -m : Compile the sources without updating them
    -u : Update the sources without compiling them
    "
@@ -183,30 +182,24 @@ For more information, see http://github.com/stack-of-tasks/install-sot
 ## Detect if General Robotix software is present
 detect_grx()
 {
-    GRX_FOUND=""
-    priorityvar1=$1
-    if (( priorityvar1 > 0 )); then
-      if [ -d /opt/grx3.0 ]; then
-        GRX_FOUND="openhrp-3.0.7"
-      fi
-      # OpenHRP 3.1.0 takes over OpenHRP 3.0.7
-      if [ -d /opt/grx ]; then
-        GRX_FOUND="openhrp-3.1.0"
-      fi
-    else
-      if [ -d /opt/grx ]; then
-        GRX_FOUND="openhrp-3.1.0"
-      fi
-      # OpenHRP 3.0.7 takes over OpenHRP 3.1.0
-      if [ -d /opt/grx3.0 ]; then
-        GRX_FOUND="openhrp-3.0.7"
-      fi
+    GRX_3_0_FOUND=""
+    GRX_3_1_FOUND=""
+    if [ -d /opt/grx ]; then
+      GRX_3_1_FOUND="openhrp-3.1.0"
+    fi
+    # OpenHRP 3.0.7 takes over OpenHRP 3.1.0
+    if [ -d /opt/grx3.0 ]; then
+      GRX_3_0_FOUND="openhrp-3.0.7"
     fi
 
-    if [ "${GRX_FOUND}" == "" ]; then
-	warn "OpenHRP not found"
-    else
-	notice "GRX_FOUND is ${GRX_FOUND}"
+    if ! [ "${GRX_3_0_FOUND}" == "" ]; then
+     notice "grx3.0 FOUND"
+    fi
+    if ! [ "${GRX_3_1_FOUND}" == "" ]; then
+     notice "grx3.1 FOUND"
+    fi
+    if [ "${GRX_3_0_FOUND}" == "" ] && [ "${GRX_3_1_FOUND}" == "" ]; then
+     warn "Neither grx3.0 nor grx3.1 could be found"
     fi
 }
 
@@ -231,14 +224,11 @@ COMPILE_PACKAGE=1       # 1 to compile the packages, 0 otherwise
 . /etc/lsb-release
 notice "Distribution is $DISTRIB_CODENAME"
 
-ARG_DETECT_GRX=1
 DISPLAY_LIST_INSTRUCTIONS=0
 
 # Deal with options
-while getopts ":cghlmur:" option; do
+while getopts ":chlmur:" option; do
   case "$option" in
-    g)  ARG_DETECT_GRX=0
-        ;;
     h)  # it's always useful to provide some help
         usage_message
         exit 0
@@ -453,7 +443,7 @@ create_local_db()
   fi
 
   if [ "${PRIVATE_URI}" != "" ] || [ "${IDH_PRIVATE_URI}" != "" ]; then
-    if [ "$GRX_FOUND" == "openhrp-3.0.7" ]; then
+    if ! [ "$GRX_3_0_FOUND" == "" ]; then
 
       inst_array[index]="install_ros_ws_package openhrp_bridge"
       let "index= $index + 1"
@@ -465,7 +455,7 @@ create_local_db()
       let "index= $index + 1"
     fi
 
-    if [ "$GRX_FOUND" == "openhrp-3.1.0" ]; then
+    if ! [ "$GRX_3_1_FOUND" == "" ]; then
       inst_array[index]="install_pkg $SRC_DIR/sot sot-hrprtc-hrp2 ${STACK_OF_TASKS_URI}"
       let "index= $index + 1"
     fi
@@ -487,7 +477,7 @@ display_list_instructions()
   done
 }
 
-detect_grx $ARG_DETECT_GRX
+detect_grx
 create_local_db
 
 if (( DISPLAY_LIST_INSTRUCTIONS > 0 )); then
@@ -942,7 +932,7 @@ update_ros_setup()
 
 
 # Setup environment variables.
-if [ "$GRX_FOUND" == "openhrp-3.1.0" ]; then
+if ! [ "$GRX_3_1_FOUND" == "" ]; then
   export PKG_CONFIG_PATH="/opt/grx/lib/pkgconfig/":$PKG_CONFIG_PATH
 fi
 
