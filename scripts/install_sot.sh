@@ -50,7 +50,6 @@ bme=`basename "$0"`
 : ${MAKE_OPTS=-k}
 
 : ${BUILD_TYPE=RELEASE}
-: ${ROBOT=HRP2LAAS}
 
 # Compilation flags
 : ${CFLAGS="-O3 -pipe -fomit-frame-pointer -ggdb3 -DNDEBUG"}
@@ -708,14 +707,12 @@ compile_pkg()
 	-DCMAKE_BUILD_TYPE=$local_build_type \
 	-DCMAKE_EXE_LINKER_FLAGS_$local_build_type=\"${LDFLAGS}\" \
 	-DCMAKE_INSTALL_PREFIX=${INSTALL_DIR} \
-	-DSMALLMATRIX=jrl-mathtools -DROBOT=${ROBOT} \
 	-DCXX_DISABLE_WERROR=1 \
     	-DCMAKE_CXX_FLAGS=\"$local_cflags\" ..
     ${CMAKE} \
 	-DCMAKE_BUILD_TYPE=$local_build_type \
 	-DCMAKE_EXE_LINKER_FLAGS_$local_build_type="${LDFLAGS}" \
 	-DCMAKE_INSTALL_PREFIX=${INSTALL_DIR} \
-	-DSMALLMATRIX=jrl-mathtools -DROBOT=${ROBOT} \
 	-DCXX_DISABLE_WERROR=1 \
 	-DCMAKE_CXX_FLAGS="$local_cflags" ..
 
@@ -824,7 +821,6 @@ install_config()
     echo "source \$ROS_WS_DIR/setup.bash"           >> $CONFIG_FILE
     echo "ROS_WS_DIR=\$HOME/devel/$ROS_DEVEL_NAME"  >> $CONFIG_FILE
     echo "ROS_INSTALL_DIR=$INSTALL_DIR"             >> $CONFIG_FILE
-    echo "export ROBOT=\"$ROBOT\""                  >> $CONFIG_FILE
     echo "export ROS_ROOT=/opt/ros/$ROS_VERSION"     >> $CONFIG_FILE
     echo "export PATH=\$ROS_ROOT/bin:\$PATH"        >> $CONFIG_FILE
     echo "export PYTHONPATH=\$ROS_ROOT/core/roslib/src:\$ROS_INSTALL_DIR/$PYTHON_SITELIB:\$ROS_INSTALL_DIR/$PYTHON_DISTLIB:\$PYTHONPATH" >> $CONFIG_FILE
@@ -910,13 +906,11 @@ install_ros_ws_package()
 	-DCMAKE_BUILD_TYPE=$local_build_type \
 	-DCMAKE_EXE_LINKER_FLAGS_$local_build_type=\"${LDFLAGS}\" \
 	-DCMAKE_INSTALL_PREFIX=${INSTALL_DIR} \
-	-DSMALLMATRIX=jrl-mathtools -DROBOT=${ROBOT} \
     	-DCMAKE_CXX_FLAGS=\"$local_cflags\" ..
     ${CMAKE} \
 	-DCMAKE_BUILD_TYPE=$local_build_type \
 	-DCMAKE_EXE_LINKER_FLAGS_$local_build_type="${LDFLAGS}" \
 	-DCMAKE_INSTALL_PREFIX=${INSTALL_DIR} \
-	-DSMALLMATRIX=jrl-mathtools -DROBOT=${ROBOT} \
 	-DCMAKE_CXX_FLAGS="$local_cflags" ..
     ${MAKE} ${MAKE_OPTS}
     
