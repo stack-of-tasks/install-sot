@@ -810,11 +810,10 @@ install_config()
     CONFIG_FILE=config_$ROS_DEVEL_NAME.sh
     echo "#!/bin/sh"                                >  $CONFIG_FILE
     echo "source /opt/ros/$ROS_VERSION/setup.bash"   >> $CONFIG_FILE
-    echo "ROS_WS_DIR=\$HOME/devel/$ROS_DEVEL_NAME"  >> $CONFIG_FILE
+    echo "ROS_WS_DIR=$SOT_ROOT_DIR"  >> $CONFIG_FILE
     echo "source \$ROS_WS_DIR/setup.bash"           >> $CONFIG_FILE
-    echo "ROS_WS_DIR=\$HOME/devel/$ROS_DEVEL_NAME"  >> $CONFIG_FILE
     echo "ROS_INSTALL_DIR=$INSTALL_DIR"             >> $CONFIG_FILE
-    echo "export ROS_ROOT=/opt/ros/$ROS_VERSION"     >> $CONFIG_FILE
+    echo "export ROS_ROOT=/opt/ros/$ROS_DISTRO"     >> $CONFIG_FILE
     echo "export PATH=\$ROS_ROOT/bin:\$PATH"        >> $CONFIG_FILE
     echo "export PYTHONPATH=\$ROS_ROOT/core/roslib/src:\$ROS_INSTALL_DIR/$PYTHON_SITELIB:\$ROS_INSTALL_DIR/$PYTHON_DISTLIB:\$PYTHONPATH" >> $CONFIG_FILE
     echo "export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/usr/local/lib/pkgconfig:/opt/grx/lib/pkgconfig"     >> $CONFIG_FILE
@@ -826,7 +825,6 @@ install_config()
         echo "export LD_LIBRARY_PATH=\$ROS_INSTALL_DIR/lib/$arch_path:\$LD_LIBRARY_PATH" >> $CONFIG_FILE
     fi;
     echo "export ROS_MASTER_URI=http://localhost:11311" >> $CONFIG_FILE
-    source $CONFIG_FILE
 }
 
 
