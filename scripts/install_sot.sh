@@ -902,15 +902,15 @@ install_ros_ws_package()
 	-DCMAKE_CXX_FLAGS="$local_cflags" ..
     ${MAKE} ${MAKE_OPTS}
     
-   if [ "$ROS_VERSION" == "groovy" ]; then
-    	if [ "$1" == "dynamic_graph_bridge" ] || [ "$1" == "openhrp_bridge" ] || [ "$1" == "urdf_parser_py" ] || [ "$1" == "robot_capsule_urdf" ] || [ "$1" == "xml_reflection" ]; then
-  	  ${MAKE} install
-	fi
-   else
-    	if [ "$1" == "dynamic_graph_bridge" ] || [ "$1" == "openhrp_bridge" ] ; then
-  	  ${MAKE} install
-	fi
-   fi
+    if [ "$ROS_VERSION" == "groovy" ]; then
+        if [ "$1" == "urdf_parser_py" ] || [ "$1" == "robot_capsule_urdf" ] || [ "$1" == "xml_reflection" ]; then
+            ${MAKE} install
+        fi
+    fi
+
+    if [ "$1" == "dynamic_graph_bridge" ] || [ "$1" == "openhrp_bridge" ] ; then
+        ${MAKE} install
+    fi
 }
 
 update_ros_setup()
