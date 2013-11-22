@@ -155,6 +155,7 @@ Options:
         To use -l you HAVE TO specify ros_install_path and installation_level.
         With -l the instructions are displayed but not run.
    -m : Compile the sources without updating them
+   -o : print the git log of every package compiled and exit.
    -u : Update the sources without compiling them
    "
 
@@ -220,6 +221,7 @@ test "x$1" = x--debug && shift && set -x
 REMOVE_CMAKECACHE=0     # 1 to rm CMakeCache.txt
 UPDATE_PACKAGE=1        # 1 to run the update the packages, 0 otherwise
 COMPILE_PACKAGE=1       # 1 to compile the packages, 0 otherwise
+LOG_PACKAGE=0           # 1 to bypass the compilation, print the log and return
 
 . /etc/lsb-release
 notice "Distribution is $DISTRIB_CODENAME"
@@ -227,7 +229,7 @@ notice "Distribution is $DISTRIB_CODENAME"
 DISPLAY_LIST_INSTRUCTIONS=0
 
 # Deal with options
-while getopts ":chlmur:" option; do
+while getopts ":chlmour:" option; do
   case "$option" in
     h)  # it's always useful to provide some help
         usage_message
@@ -240,6 +242,10 @@ while getopts ":chlmur:" option; do
 		;;
 
     m)  COMPILE_PACKAGE=1
+        UPDATE_PACKAGE=0
+        ;;
+    o)  COMPILE_PACKAGE=1
+        LOG_PACKAGE=1
         UPDATE_PACKAGE=0
         ;;
     u)  COMPILE_PACKAGE=0
@@ -682,6 +688,11 @@ compile_pkg()
 
     cd $2
 
+    if [ $LOG_PACKAGE -eq 1 ]; then
+        git log -n 1 --pretty=oneline
+        return
+    fi
+
     # Choose the build type
     if ! test x"$5" = x; then
 	local_build_type=$5
@@ -863,6 +874,12 @@ install_ros_ws()
 
 install_ros_ws_package()
 {
+    if [ $LOG_PACKAGE -eq 1 ]; then
+        roscd $1
+        git log -n 1 --pretty=oneline
+        return
+    fi
+
     if [ $COMPILE_PACKAGE -eq 0 ]; then
         return
     fi
