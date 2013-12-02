@@ -820,12 +820,10 @@ install_config()
     # create the file
     CONFIG_FILE=config_$ROS_DEVEL_NAME.sh
     echo "#!/bin/sh"                                >  $CONFIG_FILE
-    echo "source /opt/ros/$ROS_VERSION/setup.bash"   >> $CONFIG_FILE
     echo "ROS_WS_DIR=$SOT_ROOT_DIR"  >> $CONFIG_FILE
     echo "source \$ROS_WS_DIR/setup.bash"           >> $CONFIG_FILE
     echo "ROS_INSTALL_DIR=$INSTALL_DIR"             >> $CONFIG_FILE
-    echo "export ROS_ROOT=/opt/ros/$ROS_DISTRO"     >> $CONFIG_FILE
-    echo "export PATH=\$ROS_ROOT/bin:\$PATH"        >> $CONFIG_FILE
+    echo "export PATH=/opt/ros/$ROS_DISTRO/bin:\$PATH"        >> $CONFIG_FILE
     echo "export PYTHONPATH=\$ROS_ROOT/core/roslib/src:\$ROS_INSTALL_DIR/$PYTHON_SITELIB:\$ROS_INSTALL_DIR/$PYTHON_DISTLIB:\$PYTHONPATH" >> $CONFIG_FILE
     echo "export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/usr/local/lib/pkgconfig:/opt/grx/lib/pkgconfig"     >> $CONFIG_FILE
     echo "export ROS_PACKAGE_PATH=\$ROS_WS_DIR:\$ROS_WS_DIR/stacks/hrp2:\$ROS_WS_DIR/stacks/ethzasl_ptam:/opt/ros/${ROS_VERSION}/stacks:/opt/ros/\${ROS_VERSION}/stacks/ros_realtime:\$ROS_PACKAGE_PATH" >> $CONFIG_FILE
