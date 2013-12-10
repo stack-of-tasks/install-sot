@@ -14,13 +14,15 @@ Please be aware that not setting correctly your environment variables may lead t
 To start the installation, you should:
 
  1. Set your version of ROS
- For instance for electric and using the subdirectory ros-unastable-test, it will be:
+
+ For instance for electric and using the subdirectory ros-unstable-test, it will be:
  ROS_ROOT=/opt/ros/electric/ros
  ROS_PACKAGE_PATH=/home/user/devel/ros-unstable-test:/opt/ros/electric/stacks:/opt/ros/electric/stacks/ros_realtime:/opt/ros/electric/stacks
  ROS_MASTER_URI=http://localhost:11311
  
  1. Set your private repositories account (optional, but VERY important):
- GITHUB_ACCOUNT
+
+ GITHUB_ACCOUNT,
  PRIVATE_URI
 
  1. Call:
@@ -34,6 +36,10 @@ If ROS is installed, as well as Git and Doxygen, you can start with
 
 Otherwise you can set `install_level` to 0 to install the required
 dependencies.
+Note that the steps 0, 2 and 3 require super user privileges, to install ros and 
+distribution dependencies.
+
+**Do not** run the script install_sot.sh in sudo, this will create some problems.
 
 This will install a ROS workspace in `$HOME/devel/ros_subdir/`.
 
