@@ -791,8 +791,15 @@ install_ros_legacy()
       ${SUDO} ${APT_GET_INSTALL} ros-fuerte-robot-model
     fi
 
-   if [ "$ROS_VERSION" == "hydro" ]; then
+
+    if [ "$ROS_VERSION" == "groovy" ]; then
+      ${SUDO} ${APT_GET_INSTALL} ros-groovy-control-msgs # for sot_pr2
+    fi
+
+    if [ "$ROS_VERSION" == "hydro" ]; then
       ${SUDO} ${APT_GET_INSTALL} ros-hydro-robot-state-publisher
+      ${SUDO} ${APT_GET_INSTALL} ros-$ROS_VERSION-cmake-modules
+      ${SUDO} ${APT_GET_INSTALL} ros-hydro-urdfdom-py    # for xml_reflection
     fi
 }
 
