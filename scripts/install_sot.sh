@@ -357,6 +357,10 @@ create_local_db()
 	  inst_array[index]="install_ros_ws_package xml_reflection"
 	  let "index= $index + 1"
       fi
+      if [ "$ROS_VERSION" == "hydro" ]; then
+	  inst_array[index]="install_ros_ws_package robot_capsule_urdf"
+	  let "index= $index + 1"
+      fi
     inst_array[index]="install_ros_ws_package hrp2_14_description"
     let "index= $index + 1"
   fi
@@ -913,12 +917,21 @@ install_ros_ws_package()
 	-DCMAKE_CXX_FLAGS="$local_cflags" ..
     ${MAKE} ${MAKE_OPTS}
     
+    # for groovy
     if [ "$ROS_VERSION" == "groovy" ]; then
         if [ "$1" == "urdf_parser_py" ] || [ "$1" == "robot_capsule_urdf" ] || [ "$1" == "xml_reflection" ]; then
             ${MAKE} install
         fi
     fi
 
+    # for hydro
+    if [ "$ROS_VERSION" == "hydro" ]; then
+        if [ "$1" == "robot_capsule_urdf" ]; then
+            ${MAKE} install
+        fi
+    fi
+
+    # for all distribution
     if [ "$1" == "dynamic_graph_bridge" ] || [ "$1" == "openhrp_bridge" ] ; then
         ${MAKE} install
     fi
