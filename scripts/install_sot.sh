@@ -807,13 +807,6 @@ install_config()
     # get python dist packages path
     PYTHON_DISTLIB=`python -c "import sys, os; print os.sep.join(['lib', 'python' + sys.version[:3], 'dist-packages'])"`
 
-    # get dpkg version
-    dpkg_version=`dpkg-architecture --version | head -n 1 | awk '{print $4}'`
-    comp=`compare_versions "$dpkg_version" "1.16.0"`
-    if [[ $comp -ge 0 ]];  then
-      arch_path=`dpkg-architecture -qDEB_HOST_MULTIARCH`
-    fi;
-
     # load ros info
     source $SOT_ROOT_DIR/setup.bash
 
@@ -829,10 +822,6 @@ install_config()
     echo "export ROS_PACKAGE_PATH=\$ROS_WS_DIR:\$ROS_WS_DIR/stacks/hrp2:\$ROS_WS_DIR/stacks/ethzasl_ptam:/opt/ros/${ROS_VERSION}/stacks:/opt/ros/\${ROS_VERSION}/stacks/ros_realtime:\$ROS_PACKAGE_PATH" >> $CONFIG_FILE
     echo "export LD_LIBRARY_PATH=\$ROS_INSTALL_DIR/lib/plugin:\$LD_LIBRARY_PATH" >> $CONFIG_FILE
     echo "export LD_LIBRARY_PATH=\$ROS_INSTALL_DIR/lib:\$LD_LIBRARY_PATH" >> $CONFIG_FILE
-    if [ $? -eq 0 ];  then
-        echo "export LD_LIBRARY_PATH=\$ROS_INSTALL_DIR/lib/$arch_path/plugin:\$LD_LIBRARY_PATH" >> $CONFIG_FILE
-        echo "export LD_LIBRARY_PATH=\$ROS_INSTALL_DIR/lib/$arch_path:\$LD_LIBRARY_PATH" >> $CONFIG_FILE
-    fi;
     echo "export ROS_MASTER_URI=http://localhost:11311" >> $CONFIG_FILE
 }
 
@@ -950,16 +939,6 @@ if ! [ "$GRX_3_1_FOUND" == "" ]; then
 fi
 
 export PKG_CONFIG_PATH="${INSTALL_DIR}/lib/pkgconfig":$PKG_CONFIG_PATH
-
-# check the multiarch extension, only available for dpkg-architecture > 1.16.0
-dpkg_version=`dpkg-architecture --version | head -n 1 | awk '{print $4}'`
-comp=`compare_versions "$dpkg_version" "1.16.0"`
-if [[ $comp -ge 0 ]];  then
-  arch_path=`dpkg-architecture -qDEB_HOST_MULTIARCH`
-  if [ $? -eq 0 ];  then
-    export PKG_CONFIG_PATH="${INSTALL_DIR}/lib/$arch_path/pkgconfig":$PKG_CONFIG_PATH
-  fi;
-fi;
 
 run_instructions()
 {
