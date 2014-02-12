@@ -433,6 +433,9 @@ create_local_db()
   inst_array[index]="install_ros_ws_package jrl_dynamics_urdf"
   let "index= $index + 1"
 
+  inst_array[index]="install_ros_ws_package dynamic_graph_bridge_msgs"
+  let "index= $index + 1"
+
   inst_array[index]="install_ros_ws_package dynamic_graph_bridge"
   let "index= $index + 1"
 
