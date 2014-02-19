@@ -821,7 +821,7 @@ install_ros_legacy()
 
 
 # create a config file to load all env parameters
-install_config()
+install_config_internal()
 {
     # get python site packages path
     PYTHON_SITELIB=`python -c "import sys, os; print os.sep.join(['lib', 'python' + sys.version[:3], 'site-packages'])"`
@@ -832,18 +832,35 @@ install_config()
     source $SOT_ROOT_DIR/setup.bash
 
     # create the file
-    CONFIG_FILE=config_$ROS_DEVEL_NAME.sh
-    echo "#!/bin/sh"                                >  $CONFIG_FILE
-    echo "ROS_WS_DIR=$SOT_ROOT_DIR"  >> $CONFIG_FILE
-    echo "source \$ROS_WS_DIR/setup.bash"           >> $CONFIG_FILE
+    CONFIG_FILE=$1
+
     echo "ROS_INSTALL_DIR=$INSTALL_DIR"             >> $CONFIG_FILE
     echo "export PATH=/opt/ros/$ROS_DISTRO/bin:\$PATH"        >> $CONFIG_FILE
     echo "export PYTHONPATH=\$ROS_ROOT/core/roslib/src:\$ROS_INSTALL_DIR/$PYTHON_SITELIB:\$ROS_INSTALL_DIR/$PYTHON_DISTLIB:\$PYTHONPATH" >> $CONFIG_FILE
     echo "export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/usr/local/lib/pkgconfig:/opt/grx/lib/pkgconfig"     >> $CONFIG_FILE
-    echo "export ROS_PACKAGE_PATH=\$ROS_WS_DIR:\$ROS_WS_DIR/stacks/hrp2:\$ROS_WS_DIR/stacks/ethzasl_ptam:/opt/ros/${ROS_VERSION}/stacks:/opt/ros/\${ROS_VERSION}/stacks/ros_realtime:\$ROS_PACKAGE_PATH" >> $CONFIG_FILE
+    echo "export ROS_PACKAGE_PATH=\$ROS_WS_DIR:/opt/ros/${ROS_VERSION}/stacks:/opt/ros/\${ROS_VERSION}/stacks/ros_realtime:\$ROS_PACKAGE_PATH" >> $CONFIG_FILE
     echo "export LD_LIBRARY_PATH=\$ROS_INSTALL_DIR/lib/plugin:\$LD_LIBRARY_PATH" >> $CONFIG_FILE
     echo "export LD_LIBRARY_PATH=\$ROS_INSTALL_DIR/lib:\$LD_LIBRARY_PATH" >> $CONFIG_FILE
     echo "export ROS_MASTER_URI=http://localhost:11311" >> $CONFIG_FILE
+}
+
+
+install_config()
+{
+    # load ros info
+    source $SOT_ROOT_DIR/setup.bash
+
+    # create the file
+    CONFIG_FILE=config_$ROS_DEVEL_NAME.sh
+    echo "#!/bin/sh"   >  $CONFIG_FILE
+    echo ". $SOT_ROOT_DIR/setup.sh" >> $CONFIG_FILE
+    install_config_internal $CONFIG_FILE
+
+    # create the file
+    CONFIG_FILE=config_$ROS_DEVEL_NAME.bash
+    echo "#!/bin/bash"   >  $CONFIG_FILE
+    echo "source $SOT_ROOT_DIR/setup.bash" >> $CONFIG_FILE
+    install_config_internal $CONFIG_FILE
 }
 
 
