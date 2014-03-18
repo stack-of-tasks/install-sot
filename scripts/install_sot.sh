@@ -581,6 +581,7 @@ install_apt_dependencies()
 	libeigen3-dev \
 	liblapack-dev libblas-dev gfortran \
 	python-dev python-sphinx python-numpy \
+	libbullet-dev \
 	omniidl omniidl-python libomniorb4-dev
 }
 
