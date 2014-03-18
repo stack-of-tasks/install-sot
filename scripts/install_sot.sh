@@ -881,20 +881,26 @@ install_ros_ws()
     
     echo "Version to be installed: $ROS_VERSION"
 
-    rosinstall $SOT_ROOT_DIR https://raw.github.com/laas/ros/$gh_ros_sub_dir/laas.rosinstall /opt/ros/$ROS_VERSION
+    wget  https://raw.github.com/laas/ros/$gh_ros_sub_dir/laas.rosinstall  --output-document=/tmp/laas.rosinstall
+    cat  /tmp/laas.rosinstall  > /tmp/sot_$ROS_VERSION.rosinstall
+
     if [ "${PRIVATE_URI}" != "" ]; then
-      rosinstall $SOT_ROOT_DIR https://raw.github.com/laas/ros/$gh_ros_sub_dir/jrl-umi3218-private.rosinstall
+      wget  https://raw.github.com/laas/ros/$gh_ros_sub_dir/jrl-umi3218-private.rosinstall   --output-document=/tmp/jrl-umi3218-private.rosinstall
+      cat  /tmp/jrl-umi3218-private.rosinstall >> /tmp/sot_$ROS_VERSION.rosinstall
     fi
 
     if [ "${TRAC_LAAS_URI}" != "" ]; then
-      rosinstall $SOT_ROOT_DIR https://raw.github.com/laas/ros/$gh_ros_sub_dir/laas-private.rosinstall
+      wget  https://raw.github.com/laas/ros/$gh_ros_sub_dir/laas-private.rosinstall   --output-document=/tmp/laas-private.rosinstall
+      cat  /tmp/laas-private.rosinstall >> /tmp/sot_$ROS_VERSION.rosinstall
     fi
 
     if [ "${IDH_PRIVATE_URI}" != "" ]; then
       echo -e "- git:\n    uri: git@idh.lirmm.fr:mcp/ros/hrp4/hrp4_urdf.git\n" \
            "   local-name: stacks/hrp4\n    version: "${ROS_VERSION} > /tmp/idh-private.rosinstall
-      rosinstall $SOT_ROOT_DIR  /tmp/idh-private.rosinstall
+      cat  /tmp/idh-private.rosinstall >> /tmp/sot_$ROS_VERSION.rosinstall
     fi
+
+    rosinstall $SOT_ROOT_DIR /tmp/sot_$ROS_VERSION.rosinstall /opt/ros/$ROS_VERSION
 }
 
 install_ros_ws_package()
