@@ -428,9 +428,6 @@ create_local_db()
   inst_array[index]="install_pkg $SRC_DIR/sot sot-application ${STACK_OF_TASKS_URI}"
   let "index= $index + 1"
 
-  inst_array[index]="install_pkg $SRC_DIR/sot sot-pattern-generator ${STACK_OF_TASKS_URI} topic/python"
-  let "index= $index + 1"
-
   # In groovy and hydro, use the standalone version of jrl_dynamics_urdf
   if [ "$ROS_VERSION" == "groovy" ] || [ "$ROS_VERSION" == "hydro" ]; then
     inst_array[index]="install_pkg $SRC_DIR/jrl jrl_dynamics_urdf ${LAAS_URI}"
@@ -439,6 +436,9 @@ create_local_db()
     inst_array[index]="install_ros_ws_package jrl_dynamics_urdf"
     let "index= $index + 1"
   fi
+
+  inst_array[index]="install_pkg $SRC_DIR/sot sot-pattern-generator ${STACK_OF_TASKS_URI} master"
+  let "index= $index + 1"
 
   inst_array[index]="install_ros_ws_package dynamic_graph_bridge_msgs"
   let "index= $index + 1"
