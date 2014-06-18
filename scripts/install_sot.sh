@@ -46,6 +46,7 @@ bme=`basename "$0"`
 : ${DOXYGEN=/usr/bin/doxygen}
 : ${SUDO=sudo}
 
+: ${GIT_OPTS=--quiet}
 : ${GIT_CLONE_OPTS=--quiet --recursive}
 : ${MAKE_OPTS=-k}
 
@@ -680,16 +681,16 @@ update_pkg()
     if ! test x"$4" = x; then
        if ${GIT} branch | grep $4 ; then
           ${GIT} checkout $4
-          ${GIT} pull
+          ${GIT} pull ${GIT_OPTS}
        else
           ${GIT} checkout -b $4 origin/$4
        fi
     else
-      ${GIT} pull
+      ${GIT} pull ${GIT_OPTS}
     fi
 
     # Configure the repository
-    ${GIT} submodule init && ${GIT} submodule update
+    ${GIT} submodule ${GIT_OPTS} init && ${GIT} submodule ${GIT_OPTS} update
 
     cd $OLD_PWD
 }
@@ -705,7 +706,7 @@ compile_pkg()
     cd $2
 
     if [ $LOG_PACKAGE -eq 1 ]; then
-        git log -n 1 --pretty=oneline
+        ${GIT} log -n 1 --pretty=oneline
         return
     fi
 
@@ -759,7 +760,7 @@ install_python_pkg()
     cd "$1"
     if test -d "$2"; then
 	cd "$2"
-	${GIT} pull
+	${GIT} pull ${GIT_OPTS}
     else
 	${GIT} clone ${GIT_CLONE_OPTS} "$3/$2"
 	cd "$2"
@@ -771,7 +772,7 @@ install_python_pkg()
 	   ${GIT} checkout -b "$4" "origin/$4"
        fi
     fi
-    ${GIT} submodule init && ${GIT} submodule update
+    ${GIT} submodule ${GIT_OPTS} init && ${GIT} submodule ${GIT_OPTS} update
     python setup.py install --prefix=${INSTALL_DIR}
 }
 
@@ -912,7 +913,7 @@ install_ros_ws_package()
 {
     if [ $LOG_PACKAGE -eq 1 ]; then
         roscd $1
-        git log -n 1 --pretty=oneline
+        ${GIT} log -n 1 --pretty=oneline
         return
     fi
 
