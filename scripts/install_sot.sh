@@ -581,7 +581,6 @@ install_apt_dependencies()
 	libeigen3-dev \
 	liblapack-dev libblas-dev gfortran \
 	python-dev python-sphinx python-numpy \
-	libbullet-dev \
 	omniidl omniidl-python libomniorb4-dev
 }
 
@@ -815,6 +814,9 @@ install_ros_legacy()
       ${SUDO} ${APT_GET_INSTALL} ros-$ROS_VERSION-cmake-modules
       ${SUDO} ${APT_GET_INSTALL} ros-hydro-urdfdom-py    # for xml_reflection
     fi
+
+    # install bullet (requires ros ppa)
+    ${SUDO} ${APT_GET_INSTALL} 	libbullet-dev
 }
 
 
