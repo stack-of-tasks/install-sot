@@ -582,6 +582,9 @@ install_apt_dependencies()
 	liblapack-dev libblas-dev gfortran \
 	python-dev python-sphinx python-numpy \
 	omniidl omniidl-python libomniorb4-dev
+	if ! [ $? -eq 0 ];  then
+		exit -1
+	fi
 }
 
 install_git()
