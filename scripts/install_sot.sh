@@ -672,7 +672,12 @@ update_pkg()
       ${GIT} fetch
     # Or make the first clone
     else
-        ${GIT} clone ${GIT_CLONE_OPTS} $3/$2 $2
+        # Switch to the given branch
+        if ! test x"$4" = x; then
+          ${GIT} clone ${GIT_CLONE_OPTS} $3/$2 $2 -b "$4"
+        else
+          ${GIT} clone ${GIT_CLONE_OPTS} $3/$2 $2
+        fi
         cd $2
     fi
 
@@ -762,7 +767,11 @@ install_python_pkg()
 	cd "$2"
 	${GIT} pull ${GIT_OPTS}
     else
-	${GIT} clone ${GIT_CLONE_OPTS} "$3/$2"
+      if ! test x"$4" = x; then
+        ${GIT} clone ${GIT_CLONE_OPTS} "$3/$2" -b "$4"
+      else
+        ${GIT} clone ${GIT_CLONE_OPTS} "$3/$2"
+      fi
 	cd "$2"
     fi
     if ! test x"$4" = x; then
