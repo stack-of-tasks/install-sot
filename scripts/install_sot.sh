@@ -46,6 +46,7 @@ bme=`basename "$0"`
 : ${DOXYGEN=/usr/bin/doxygen}
 : ${SUDO=sudo}
 
+: ${GIT_OPTS=--quiet}
 : ${GIT_CLONE_OPTS=--quiet --recursive}
 : ${MAKE_OPTS=-k}
 
@@ -427,17 +428,17 @@ create_local_db()
   inst_array[index]="install_pkg $SRC_DIR/sot sot-application ${STACK_OF_TASKS_URI}"
   let "index= $index + 1"
 
-  inst_array[index]="install_pkg $SRC_DIR/sot sot-pattern-generator ${STACK_OF_TASKS_URI} topic/python"
-  let "index= $index + 1"
-
-  # In groovy and hydro, use the standalone version of jrl_dynamics_urdf
-  if [ "$ROS_VERSION" == "groovy" ] || [ "$ROS_VERSION" == "hydro" ]; then
-    inst_array[index]="install_pkg $SRC_DIR/jrl jrl_dynamics_urdf ${LAAS_URI}"
-    let "index= $index + 1"
-  else
+  # In fuerte and electric, use the ros version of jrl_dynamics_urdf 
+  if [ "$ROS_VERSION" == "fuerte" ] || [ "$ROS_VERSION" == "electric" ]; then
     inst_array[index]="install_ros_ws_package jrl_dynamics_urdf"
     let "index= $index + 1"
+  else # otherwise, use the standalone version of jrl_dynamics_urdf
+    inst_array[index]="install_pkg $SRC_DIR/jrl jrl_dynamics_urdf ${LAAS_URI}"
+    let "index= $index + 1"
   fi
+
+  inst_array[index]="install_pkg $SRC_DIR/sot sot-pattern-generator ${STACK_OF_TASKS_URI} master"
+  let "index= $index + 1"
 
   inst_array[index]="install_ros_ws_package dynamic_graph_bridge_msgs"
   let "index= $index + 1"
@@ -581,8 +582,10 @@ install_apt_dependencies()
 	libeigen3-dev \
 	liblapack-dev libblas-dev gfortran \
 	python-dev python-sphinx python-numpy \
-	libbullet-dev \
 	omniidl omniidl-python libomniorb4-dev
+	if ! [ $? -eq 0 ];  then
+		exit -1
+	fi
 }
 
 install_git()
@@ -669,7 +672,12 @@ update_pkg()
       ${GIT} fetch
     # Or make the first clone
     else
-        ${GIT} clone ${GIT_CLONE_OPTS} $3/$2 $2
+        # Switch to the given branch
+        if ! test x"$4" = x; then
+          ${GIT} clone ${GIT_CLONE_OPTS} $3/$2 $2 -b "$4"
+        else
+          ${GIT} clone ${GIT_CLONE_OPTS} $3/$2 $2
+        fi
         cd $2
     fi
 
@@ -678,16 +686,16 @@ update_pkg()
     if ! test x"$4" = x; then
        if ${GIT} branch | grep $4 ; then
           ${GIT} checkout $4
-          ${GIT} pull
+          ${GIT} pull ${GIT_OPTS}
        else
           ${GIT} checkout -b $4 origin/$4
        fi
     else
-      ${GIT} pull
+      ${GIT} pull ${GIT_OPTS}
     fi
 
     # Configure the repository
-    ${GIT} submodule init && ${GIT} submodule update
+    ${GIT} submodule ${GIT_OPTS} init && ${GIT} submodule ${GIT_OPTS} update
 
     cd $OLD_PWD
 }
@@ -703,7 +711,7 @@ compile_pkg()
     cd $2
 
     if [ $LOG_PACKAGE -eq 1 ]; then
-        git log -n 1 --pretty=oneline
+        ${GIT} log -n 1 --pretty=oneline
         return
     fi
 
@@ -757,9 +765,13 @@ install_python_pkg()
     cd "$1"
     if test -d "$2"; then
 	cd "$2"
-	${GIT} pull
+	${GIT} pull ${GIT_OPTS}
     else
-	${GIT} clone ${GIT_CLONE_OPTS} "$3/$2"
+      if ! test x"$4" = x; then
+        ${GIT} clone ${GIT_CLONE_OPTS} "$3/$2" -b "$4"
+      else
+        ${GIT} clone ${GIT_CLONE_OPTS} "$3/$2"
+      fi
 	cd "$2"
     fi
     if ! test x"$4" = x; then
@@ -769,7 +781,7 @@ install_python_pkg()
 	   ${GIT} checkout -b "$4" "origin/$4"
        fi
     fi
-    ${GIT} submodule init && ${GIT} submodule update
+    ${GIT} submodule ${GIT_OPTS} init && ${GIT} submodule ${GIT_OPTS} update
     python setup.py install --prefix=${INSTALL_DIR}
 }
 
@@ -815,6 +827,9 @@ install_ros_legacy()
       ${SUDO} ${APT_GET_INSTALL} ros-$ROS_VERSION-cmake-modules
       ${SUDO} ${APT_GET_INSTALL} ros-hydro-urdfdom-py    # for xml_reflection
     fi
+
+    # install bullet (requires ros ppa)
+    ${SUDO} ${APT_GET_INSTALL} 	libbullet-dev
 }
 
 
@@ -907,7 +922,7 @@ install_ros_ws_package()
 {
     if [ $LOG_PACKAGE -eq 1 ]; then
         roscd $1
-        git log -n 1 --pretty=oneline
+        ${GIT} log -n 1 --pretty=oneline
         return
     fi
 
