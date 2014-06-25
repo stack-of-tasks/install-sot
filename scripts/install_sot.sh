@@ -428,12 +428,12 @@ create_local_db()
   inst_array[index]="install_pkg $SRC_DIR/sot sot-application ${STACK_OF_TASKS_URI}"
   let "index= $index + 1"
 
-  # In groovy and hydro, use the standalone version of jrl_dynamics_urdf
-  if [ "$ROS_VERSION" == "groovy" ] || [ "$ROS_VERSION" == "hydro" ]; then
-    inst_array[index]="install_pkg $SRC_DIR/jrl jrl_dynamics_urdf ${LAAS_URI}"
-    let "index= $index + 1"
-  else
+  # In fuerte and electric, use the ros version of jrl_dynamics_urdf 
+  if [ "$ROS_VERSION" == "fuerte" ] || [ "$ROS_VERSION" == "electric" ]; then
     inst_array[index]="install_ros_ws_package jrl_dynamics_urdf"
+    let "index= $index + 1"
+  else # otherwise, use the standalone version of jrl_dynamics_urdf
+    inst_array[index]="install_pkg $SRC_DIR/jrl jrl_dynamics_urdf ${LAAS_URI}"
     let "index= $index + 1"
   fi
 
