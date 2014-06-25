@@ -42,11 +42,10 @@ can add it in the install_sot.sh file:
 
 - installation_level indicates the start level for the installation.
 
-You can set `install_level` to `0` to install the required dependencies (ros included)
+For the first run, it is recommanded to set `install_level` to `0` so as to install 
+the required dependencies (ros included). Aftwerwards, it is usually enough to start at step `4`.
 
-If ROS is installed, as well as Git and Doxygen, you can start with `installation_level=3`.
-
-Note that the steps 0, 2 and 3 require super user privileges, to install ros and 
+Note that the steps `0`, `2` and `3` require super user privileges, to install ros and 
 distribution dependencies.
 
 **Do not** run the script `install_sot.sh` in sudo, this will create some problems.
