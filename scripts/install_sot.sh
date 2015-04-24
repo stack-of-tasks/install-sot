@@ -167,7 +167,7 @@ Options:
   fi
   if [ "${PRIVATE_URI}" == "" ]; then
     echo "* If you have access to the private repositories for the HRP2."
-    echo " Please uncomment the line defining PRIVATE_URI."
+    echo " Please uncomment the line defining PRIVATE_URI or TRAC_LAAS_URI."
   fi
   if [ "${IDH_PRIVATE_URI}" == "" ]; then
     echo "* If you have access to the private repositories for the HRP4."
@@ -278,16 +278,22 @@ SRC_DIR=$SOT_ROOT_DIR/src
 INSTALL_DIR=$SOT_ROOT_DIR/install
 
 # Uncomment only if you have an access to those
-# PRIVATE_URI=git@github.com:jrl-umi3218
+#PRIVATE_URI=git@github.com:jrl-umi3218
 
 # Uncomment only if you have an account on this server.
 # IDH_PRIVATE_URI=git@idh.lirmm.fr:sot
 
 # Uncomment only if you have an account on this server.
-# TRAC_LAAS_URI=trac.laas.fr
+#TRAC_LAAS_URI=trac.laas.fr
 
 # Uncomment if you have a github account and writing access to the SoT repositories.
-# GITHUB_ACCOUNT="yes"
+#GITHUB_ACCOUNT="yes"
+
+if [ "${PRIVATE_URI}" == "" ]; then
+    notice "PRIVATE_URI not set"
+else
+    notice "PRIVATE_URI set to ${PRIVATE_URI}"
+fi
 
 if `test x${ROS_VERSION} == x`; then
     abort "ROS version unknown"
@@ -349,7 +355,7 @@ create_local_db()
     let "index= $index + 1"
   fi
 
-  if [ "${PRIVATE_URI}" != "" ]; then
+  if [ "${PRIVATE_URI}" != "" ] || [ "${TRAC_LAAS_URI}" != "" ]; then
       if [ "$ROS_VERSION" == "groovy" ]; then
 	  inst_array[index]="install_ros_ws_package urdf_parser_py"
 	  let "index= $index + 1"
@@ -378,7 +384,7 @@ create_local_db()
   inst_array[index]="install_pkg $SRC_DIR/jrl jrl-dynamics ${JRL_URI}"
   let "index= $index + 1"
 
-  if [ "${PRIVATE_URI}" != "" ]; then
+  if [ "${PRIVATE_URI}" != "" ] || [ "${TRAC_LAAS_URI}" != "" ]; then
     inst_array[index]="install_pkg $SRC_DIR/robots hrp2-14 ${PRIVATE_URI}"
     let "index= $index + 1"
 
@@ -460,12 +466,12 @@ create_local_db()
     let "index= $index + 1"
   fi
 
-  if [ "${PRIVATE_URI}" != "" ]; then
+  if [ "${PRIVATE_URI}" != "" ] || [ "${TRAC_LAAS_URI}" != "" ]; then
     inst_array[index]="install_pkg $SRC_DIR/sot sot-hrp2 ${STACK_OF_TASKS_URI}"
     let "index= $index + 1"
   fi
 
-  if [ "${PRIVATE_URI}" != "" ] || [ "${IDH_PRIVATE_URI}" != "" ]; then
+  if [ "${PRIVATE_URI}" != "" ] || [ "${IDH_PRIVATE_URI}" != "" ] || [ "${TRAC_LAAS_URI}" != "" ]; then
     if ! [ "$GRX_3_0_FOUND" == "" ]; then
 
       inst_array[index]="install_ros_ws_package openhrp_bridge"
@@ -890,7 +896,7 @@ install_ros_ws()
     # (Hydro). All the oldest releases are named by their release name:
     # fuerte, groovy, etc.
     gh_ros_sub_dir=master
-    if `! test x$ROS_VERSION == xhydro`; then
+     if `! test x$ROS_VERSION == xhydro`; then
 	gh_ros_sub_dir=$ROS_VERSION
     fi
     
@@ -905,7 +911,8 @@ install_ros_ws()
     fi
 
     if [ "${TRAC_LAAS_URI}" != "" ]; then
-      wget  https://raw.github.com/laas/ros/$gh_ros_sub_dir/laas-private.rosinstall   --output-document=/tmp/laas-private.rosinstall
+      #wget  https://raw.github.com/laas/ros/$gh_ros_sub_dir/laas-private.rosinstall   --output-document=/tmp/laas-private.rosinstall
+      scp trac.laas.fr:/git/jrl/robots/ros-install/laas-private.rosinstall /tmp 
       cat  /tmp/laas-private.rosinstall >> /tmp/sot_$ROS_VERSION.rosinstall
     fi
 
