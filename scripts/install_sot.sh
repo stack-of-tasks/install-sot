@@ -284,7 +284,7 @@ INSTALL_DIR=$SOT_ROOT_DIR/install
 # IDH_PRIVATE_URI=git@idh.lirmm.fr:sot
 
 # Uncomment only if you have an account on this server.
-#TRAC_LAAS_URI=trac.laas.fr
+TRAC_LAAS_URI=trac.laas.fr
 
 # Uncomment if you have a github account and writing access to the SoT repositories.
 #GITHUB_ACCOUNT="yes"
@@ -384,18 +384,24 @@ create_local_db()
   inst_array[index]="install_pkg $SRC_DIR/jrl jrl-dynamics ${JRL_URI}"
   let "index= $index + 1"
 
-  if [ "${PRIVATE_URI}" != "" ] || [ "${TRAC_LAAS_URI}" != "" ]; then
-    inst_array[index]="install_pkg $SRC_DIR/robots hrp2-14 ${PRIVATE_URI}"
-    let "index= $index + 1"
-
-    inst_array[index]="install_pkg $SRC_DIR/robots hrp2-dynamics ${PRIVATE_URI}"
-    let "index= $index + 1"
+  if [ "${PRIVATE_URI}" != "" ]; then
 
     inst_array[index]="install_pkg $SRC_DIR/robots hrp2-10 ${PRIVATE_URI}"
     let "index= $index + 1"
 
     inst_array[index]="install_pkg $SRC_DIR/robots hrp2-10-optimized ${PRIVATE_URI}"
     let "index= $index + 1"
+
+  fi
+  
+  if [ "${TRAC_LAAS_URI}" != "" ]; then
+
+    inst_array[index]="install_pkg $SRC_DIR/robots hrp2-14 ssh://${TRAC_LAAS_URI}/git/jrl/robots/"
+    let "index= $index + 1"
+
+    inst_array[index]="install_pkg $SRC_DIR/robots hrp2-dynamics ssh://${TRAC_LAAS_URI}/git/jrl/robots/"
+    let "index= $index + 1"      
+
   fi
 
   inst_array[index]="install_pkg $SRC_DIR/jrl jrl-walkgen ${JRL_URI}"
@@ -1017,6 +1023,7 @@ export PKG_CONFIG_PATH="${INSTALL_DIR}/lib/pkgconfig":$PKG_CONFIG_PATH
 
 run_instructions()
 {
+
   echo "run instructions from $install_level to ${#inst_array[@]}"
   for ((lindex=$install_level; lindex<${#inst_array[@]} ; lindex++ ))
   do
