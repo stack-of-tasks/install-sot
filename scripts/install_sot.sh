@@ -284,7 +284,7 @@ INSTALL_DIR=$SOT_ROOT_DIR/install
 # IDH_PRIVATE_URI=git@idh.lirmm.fr:sot
 
 # Uncomment only if you have an account on this server.
-#TRAC_LAAS_URI=trac.laas.fr
+TRAC_LAAS_URI=trac.laas.fr
 
 # Uncomment if you have a github account and writing access to the SoT repositories.
 #GITHUB_ACCOUNT="yes"
@@ -908,16 +908,16 @@ install_ros_ws()
     
     echo "Version to be installed: $ROS_VERSION"
 
-    wget  https://raw.github.com/laas/ros/$gh_ros_sub_dir/laas.rosinstall  --output-document=/tmp/laas.rosinstall
+    wget  https://raw.githubusercontent.com/laas/ros/$gh_ros_sub_dir/laas.rosinstall  --output-document=/tmp/laas.rosinstall
     cat  /tmp/laas.rosinstall  > /tmp/sot_$ROS_VERSION.rosinstall
 
     if [ "${PRIVATE_URI}" != "" ]; then
-      wget  https://raw.github.com/laas/ros/$gh_ros_sub_dir/jrl-umi3218-private.rosinstall   --output-document=/tmp/jrl-umi3218-private.rosinstall
+      wget  https://raw.githubusercontent.com/laas/ros/$gh_ros_sub_dir/jrl-umi3218-private.rosinstall   --output-document=/tmp/jrl-umi3218-private.rosinstall
       cat  /tmp/jrl-umi3218-private.rosinstall >> /tmp/sot_$ROS_VERSION.rosinstall
     fi
 
     if [ "${TRAC_LAAS_URI}" != "" ]; then
-      #wget  https://raw.github.com/laas/ros/$gh_ros_sub_dir/laas-private.rosinstall   --output-document=/tmp/laas-private.rosinstall
+      #wget  https://raw.githubusercontent.com/laas/ros/$gh_ros_sub_dir/laas-private.rosinstall   --output-document=/tmp/laas-private.rosinstall
       scp trac.laas.fr:/git/jrl/robots/ros-install/laas-private.rosinstall /tmp 
       cat  /tmp/laas-private.rosinstall >> /tmp/sot_$ROS_VERSION.rosinstall
     fi
