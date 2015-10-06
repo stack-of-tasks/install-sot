@@ -284,7 +284,7 @@ INSTALL_DIR=$SOT_ROOT_DIR/install
 # IDH_PRIVATE_URI=git@idh.lirmm.fr:sot
 
 # Uncomment only if you have an account on this server.
-TRAC_LAAS_URI=trac.laas.fr
+#TRAC_LAAS_URI=trac.laas.fr
 
 # Uncomment if you have a github account and writing access to the SoT repositories.
 #GITHUB_ACCOUNT="yes"
